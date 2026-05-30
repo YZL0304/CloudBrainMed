@@ -1,0 +1,293 @@
+=== 段落 ===
+[P1] 数据库设计
+[P2] 一、完整数据库表清单（17 张表）
+[P3] 患者表 patient
+[P4] 医生表 doctor
+[P5] 管理员表 admin
+[P6] 科室表 department
+[P7] 医生接诊时段表 doctor_schedule
+[P8] 挂号表 registration
+[P9] 病历表 medical_record
+[P10] 检查报告表 check_report
+[P11] 药品表 medicine
+[P12] 处方表 prescription
+[P13] 支付表 pay
+[P14] 检查项目表 check_item
+[P15] 检查房间表 check_room
+[P16] 检查分诊记录表 check_triage
+[P17] AI 推理日志表 ai_inference_log（新增）
+[P18] AI 反馈样本表 ai_feedback_sample（新增）
+[P19] AI 模型注册表 ai_model_registry（新增）
+[P20] 
+[P21] 各表具体设计
+[P22] 1. 患者表 patient
+[P23] 表格
+[P24] 2. 医生表 doctor
+[P25] 表格
+[P26] 3. 管理员表 admin
+[P27] 表格
+[P28] 4. 科室表 department
+[P29] 表格
+[P30] 5. 医生接诊时段表 doctor_schedule
+[P31] 表格
+[P32] 6. 挂号表 registration
+[P33] 表格
+[P34] 7. 病历表 medical_record
+[P35] 表格
+[P36] 8. 检查报告表 check_report
+[P37] 表格
+[P38] 9. 药品表 medicine
+[P39] 表格
+[P40] 10. 处方表 prescription
+[P41] 表格
+[P42] 11. 支付表 pay
+[P43] 表格
+[P44] 12. 检查项目表 check_item
+[P45] 表格
+[P46] 13. 检查房间表 check_room
+[P47] 表格
+[P48] 14. 检查分诊记录表 check_triage
+[P49] 表格
+[P50] 15. AI 推理日志表 (ai_inference_log)
+[P51] 用途：记录每一次 AI 调用（问诊、分诊、报告分析等）的详情，用于监控、审计、性能统计
+[P52] 表格
+[P53] 16. AI 反馈样本表 (ai_feedback_sample)
+[P54] 用途：捕获 AI 输出与医生最终确认结果的差异，形成模型迭代训练样本库
+[P55] 表格
+[P56] 17. AI 模型注册表 (ai_model_registry)
+[P57] 用途：管理模型版本、存储路径、线上流量分配，支撑 MLOps 平台模型调度
+[P58] 表格
+[P59] 
+
+=== 表格 ===
+
+--- 表1 (12行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: patient_id | varchar(32) | PK | 患者 ID
+  Row3: name | varchar(20) | NOT NULL | 姓名
+  Row4: gender | tinyint | - | 1 男 2 女
+  Row5: phone | varchar(11) | NOT NULL UNIQUE | 电话
+  Row6: id_card | varchar(18) | UNIQUE | 身份证号
+  Row7: address | varchar(100) | - | 住址
+  Row8: password | varchar(64) | NOT NULL | 密码（加密）
+  Row9: birthday | date | - | 出生日期（新增补全）
+  Row10: create_time | datetime | - | 创建时间
+  Row11: update_time | datetime | - | 更新时间
+  Row12: is_deleted | tinyint | - | 0 未删除 1 已删除
+
+--- 表2 (15行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: doctor_id | varchar(32) | PK | 医生 ID
+  Row3: avatar | varchar(255) | - | 头像
+  Row4: name | varchar(20) | NOT NULL | 姓名
+  Row5: gender | tinyint | - | 性别
+  Row6: phone | varchar(11) | NOT NULL UNIQUE | 电话
+  Row7: email | varchar(50) | - | 邮箱
+  Row8: position | varchar(20) | - | 职位
+  Row9: good_at | varchar(200) | - | 擅长
+  Row10: introduction | text | - | 简介
+  Row11: password | varchar(64) | NOT NULL | 密码
+  Row12: department_id | varchar(32) | FK | 科室 ID
+  Row13: status | tinyint | - | 0 停用 1 正常
+  Row14: create_time | datetime | - | 创建时间
+  Row15: is_deleted | tinyint | - | 0 未删除
+
+--- 表3 (6行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: admin_id | varchar(32) | PK | 管理员 ID
+  Row3: name | varchar(20) | NOT NULL | 姓名
+  Row4: phone | varchar(11) | NOT NULL UNIQUE | 手机号
+  Row5: password | varchar(64) | NOT NULL | 密码
+  Row6: create_time | datetime | - | 创建时间
+
+--- 表4 (8行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: dept_id | varchar(32) | PK | 科室 ID
+  Row3: dept_name | varchar(50) | NOT NULL | 科室名称
+  Row4: room_id | varchar(32) | - | 科室房间 ID
+  Row5: max_capacity | int | - | 位置上限
+  Row6: free_capacity | int | - | 空闲位置
+  Row7: status | tinyint | - | 0 关闭 1 开放
+  Row8: create_time | datetime | - | 创建时间
+
+--- 表5 (11行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: schedule_id | varchar(32) | PK | 时段 ID
+  Row3: doctor_id | varchar(32) | FK | 医生 ID
+  Row4: doctor_name | varchar(20) | - | 医生姓名
+  Row5: time_json | json | - | 时段 JSON
+  Row6: max_num | int | - | 号源上限
+  Row7: remain_num | int | - | 剩余号源
+  Row8: status | tinyint | - | 状态
+  Row9: price | decimal(10,2) | - | 费用
+  Row10: room | varchar(50) | - | 接诊房间
+  Row11: create_time | datetime | - | 创建时间
+
+--- 表6 (15行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: register_id | varchar(32) | PK | 挂号 ID
+  Row3: patient_id | varchar(32) | FK | 患者 ID
+  Row4: doctor_id | varchar(32) | FK | 医生 ID
+  Row5: name | varchar(20) | - | 姓名
+  Row6: gender | tinyint | - | 性别
+  Row7: birthday | date | - | 出生日期
+  Row8: chief_complaint | varchar(200) | - | 主诉
+  Row9: department | varchar(50) | - | 科室
+  Row10: consult_room | varchar(50) | - | 接诊房间
+  Row11: visit_date | date | - | 就诊日期
+  Row12: consult_time | varchar(50) | - | 接诊时间
+  Row13: price | decimal(10,2) | - | 费用
+  Row14: pay_status | varchar(20) | - | 支付状态
+  Row15: create_time | datetime | - | 创建时间
+
+--- 表7 (12行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: record_id | varchar(32) | PK | 病历 ID
+  Row3: patient_id | varchar(32) | FK | 患者 ID
+  Row4: doctor_id | varchar(32) | FK | 医生 ID
+  Row5: register_id | varchar(32) | FK | 挂号 ID
+  Row6: doctor_name | varchar(20) | - | 医生姓名
+  Row7: patient_name | varchar(20) | - | 患者姓名
+  Row8: visit_age | int | - | 就诊年龄
+  Row9: description | text | - | 病历描述
+  Row10: visit_date | date | - | 日期
+  Row11: pay_status | varchar(20) | - | 支付状态
+  Row12: create_time | datetime | - | 创建时间
+
+--- 表8 (18行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: report_id | varchar(32) | PK | 报告 ID
+  Row3: patient_id | varchar(32) | FK | 患者 ID
+  Row4: register_id | varchar(32) | FK | 挂号 ID
+  Row5: doctor_id | varchar(32) | FK | 医生 ID
+  Row6: patient_name | varchar(20) | - | 患者姓名
+  Row7: gender | tinyint | - | 性别
+  Row8: age | int | - | 年龄
+  Row9: check_type | varchar(20) | - | 检查类型
+  Row10: check_item | varchar(50) | - | 检查项目
+  Row11: result | text | - | 检查结果
+  Row12: reference_range | text | - | 参考范围
+  Row13: abnormal | varchar(50) | - | 异常提示
+  Row14: dept | varchar(50) | - | 检查科室
+  Row15: check_date | date | - | 日期
+  Row16: price | decimal(10,2) | - | 费用
+  Row17: pay_status | varchar(20) | - | 支付状态
+  Row18: create_time | datetime | - | 创建时间
+
+--- 表9 (10行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: medicine_id | varchar(32) | PK | 药品 ID
+  Row3: name | varchar(50) | NOT NULL | 药品名称
+  Row4: spec | varchar(50) | - | 规格
+  Row5: usage | varchar(200) | - | 用法用量
+  Row6: indication | text | - | 适用症状
+  Row7: attention | text | - | 注意事项
+  Row8: stock | int | - | 库存
+  Row9: price | decimal(10,2) | - | 费用
+  Row10: create_time | datetime | - | 创建时间
+
+--- 表10 (16行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: prescription_id | varchar(32) | PK | 处方 ID
+  Row3: register_id | varchar(32) | FK | 挂号 ID
+  Row4: patient_id | varchar(32) | FK | 患者 ID
+  Row5: doctor_id | varchar(32) | FK | 医生 ID
+  Row6: medicine_id | varchar(32) | FK | 药品 ID
+  Row7: patient_name | varchar(20) | - | 患者姓名
+  Row8: doctor_name | varchar(20) | - | 医生姓名
+  Row9: medicine_name | varchar(50) | - | 药品名称
+  Row10: spec | varchar(50) | - | 规格
+  Row11: usage | varchar(200) | - | 用法用量
+  Row12: num | int | - | 数量
+  Row13: create_date | date | - | 日期
+  Row14: price | decimal(10,2) | - | 费用
+  Row15: pay_status | varchar(20) | - | 支付状态
+  Row16: create_time | datetime | - | 创建时间
+
+--- 表11 (9行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: pay_id | varchar(32) | PK | 支付订单号
+  Row3: order_type | varchar(20) | - | 挂号 / 检查 / 药品
+  Row4: business_id | varchar(32) | - | 业务 ID
+  Row5: patient_id | varchar(32) | FK | 患者 ID
+  Row6: patient_name | varchar(20) | - | 患者姓名
+  Row7: total_amount | decimal(10,2) | - | 总金额
+  Row8: pay_status | varchar(20) | - | 未支付 / 已支付
+  Row9: pay_time | datetime | - | 支付时间
+
+--- 表12 (8行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: check_item_id | varchar(32) | PK | 检查项目 ID
+  Row3: check_name | varchar(50) | NOT NULL | 项目名称
+  Row4: check_type | varchar(20) | - | 影像 / 检验 / 功能
+  Row5: default_urgency | int | - | 默认紧急等级 1-5
+  Row6: price | decimal(10,2) | - | 费用
+  Row7: status | tinyint | - | 0 停用 1 启用
+  Row8: create_time | datetime | - | 创建时间
+
+--- 表13 (12行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: room_id | varchar(32) | PK | 检查房间 ID
+  Row3: room_name | varchar(50) | NOT NULL | 房间名
+  Row4: check_item_id | varchar(32) | FK | 支持检查项目 ID
+  Row5: check_item_name | varchar(50) | - | 支持项目名
+  Row6: max_queue | int | - | 最大排队数
+  Row7: current_queue | int | - | 当前排队数
+  Row8: allow_urgent | tinyint | - | 1 支持急诊 0 不支持
+  Row9: status | tinyint | - | 0 关闭 1 空闲
+  Row10: operator | varchar(20) | - | 操作人员
+  Row11: dept_id | varchar(32) | - | 所属科室 ID
+  Row12: create_time | datetime | - | 创建时间
+
+--- 表14 (13行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: triage_id | varchar(32) | PK | 分诊 ID
+  Row3: register_id | varchar(32) | FK | 挂号 ID
+  Row4: patient_id | varchar(32) | FK | 患者 ID
+  Row5: check_item_id | varchar(32) | FK | 检查项目 ID
+  Row6: check_item_name | varchar(50) | - | 检查项目
+  Row7: urgency_level | int | NOT NULL | 紧急等级 1-5
+  Row8: assign_room_id | varchar(32) | FK | 分配房间 ID
+  Row9: assign_room_name | varchar(50) | - | 分配房间名
+  Row10: queue_no | int | - | 排队号
+  Row11: triage_time | datetime | - | 分诊时间
+  Row12: status | varchar(20) | - | 待检查 / 检查中 / 已完成
+  Row13: create_time | datetime | - | 创建时间
+
+--- 表15 (12行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: log_id | varchar(32) | PK | 日志主键 ID
+  Row3: trace_id | varchar(64) | NOT NULL | 链路 ID，串联一次完整 AI 请求
+  Row4: call_source | varchar(30) | NOT NULL | 调用来源：AI 问诊 / AI 分诊 / 报告分析 / 药品查询
+  Row5: model_key | varchar(50) | NOT NULL | 模型标识（关联模型注册表）
+  Row6: model_version | varchar(20) | NOT NULL | 模型版本号
+  Row7: input_summary | text | - | AI 输入内容摘要（问诊描述 / 分诊症状 / 检查数据）
+  Row8: output_summary | text | - | AI 输出结果摘要
+  Row9: status | varchar(20) | NOT NULL | 调用状态：成功 / 失败 / 超时
+  Row10: duration_ms | int | - | 推理耗时（毫秒）
+  Row11: created_at | datetime | - | 创建时间
+  Row12: patient_id | varchar(32) | FK | 关联患者 ID（可选，用于业务追溯）
+
+--- 表16 (11行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: sample_id | varchar(32) | PK | 样本主键 ID
+  Row3: trace_id | varchar(64) | NOT NULL | 链路 ID（关联推理日志）
+  Row4: ai_output_json | json | NOT NULL | AI 原始输出 JSON 数据
+  Row5: final_output_json | json | NOT NULL | 医生修正后的最终结果
+  Row6: is_adopted | tinyint | - | AI 输出是否被直接采纳：1 是 0 否
+  Row7: diff_score | decimal(5,2) | - | 差异评分（0-1，数值越大差异越大）
+  Row8: label_tag | varchar(50) | - | 样本标签：分诊 / 问诊 / 报告 / 药品
+  Row9: used_for_training | tinyint | DEFAULT 0 | 是否已用于模型训练：1 是 0 否
+  Row10: created_at | datetime | - | 创建时间
+  Row11: doctor_id | varchar(32) | FK | 关联修正医生 ID
+
+--- 表17 (9行x4列) ---
+  Row1: 字段名 | 类型 | 约束 | 说明
+  Row2: model_id | varchar(32) | PK | 模型主键 ID
+  Row3: model_key | varchar(50) | NOT NULL | 模型唯一标识（如 triage_model、chat_model）
+  Row4: version | varchar(20) | NOT NULL | 模型版本（v1.0.0）
+  Row5: artifact_path | varchar(255) | NOT NULL | 模型文件存储路径（MinIO 路径）
+  Row6: status | varchar(20) | NOT NULL | 模型状态：测试 / 上线 / 下线 / 废弃
+  Row7: traffic_pct | int | DEFAULT 0 | 流量分配百分比（0-100）
+  Row8: created_at | datetime | - | 创建时间
+  Row9: update_time | datetime | - | 更新时间

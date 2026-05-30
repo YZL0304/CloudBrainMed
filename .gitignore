@@ -1,0 +1,61 @@
+# === Java / Maven ===
+backEnd/target/
+backEnd/*.jar
+backEnd/*.war
+*.class
+*.log
+hs_err_pid*.log
+
+# === Vue / Node ===
+frontEnd/vueFront/node_modules/
+frontEnd/vueFront/dist/
+frontEnd/vueFront/.vite/
+*.zip
+
+# === Python ===
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# === IDE ===
+.idea/
+*.iml
+.vscode/
+.hvigor/
+oh_modules/
+
+# === 数据集（太大，不要提交） ===
+data/
+backup/
+course/
+teach/
+
+# === 标注成果（单独发群里） ===
+biaozhu/
+
+# === macOS 系统文件 ===
+.DS_Store
+__MACOSX/
+
+# === Nacos（日志+编译产物，太大） ===
+others/**/logs/
+others/**/target/
+others/**/data/
+others/**/nacos-server.jar
+others/*.jar
+
+# === Sentinel JAR（22MB） ===
+others/*.jar
+
+# === 临时文件 ===
+~$*
+*.tmp
+*.temp
+
+# === 环境配置（不要提交密码） ===
+.env
+*.local.properties
+
+# === 操作系统 ===
+Thumbs.db
