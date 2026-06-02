@@ -59,3 +59,8 @@ others/*.jar
 
 # === 操作系统 ===
 Thumbs.db
+
+# === 训练数据集（太大，不提交） ===
+*.nii.gz
+BrainArtifacts/datasets/CT/
+BrainArtifacts/datasets/mask/
