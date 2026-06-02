@@ -1,10 +1,8 @@
-package com.cloudbrainmed.patient.dto;
+package com.cloudbrainmed.auth.dto;
 
 //注册登录
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 /**
  * 注册请求DTO
@@ -16,8 +14,8 @@ public class authRegisterDto {
     @Size(min = 2, max = 20, message = "姓名长度必须在2-20之间")
     private String name;
 
-    @NotNull(message = "性别不能为空")
-    private Integer gender;
+    // 修改：性别改为可选，注册时不强制要求
+    private Integer gender;  // 移除 @NotNull 注解
 
     @NotBlank(message = "手机号不能为空")
     @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
@@ -28,14 +26,12 @@ public class authRegisterDto {
             message = "身份证号格式不正确")
     private String idCard;
 
-    @NotBlank(message = "地址不能为空")
-    private String address;
+    // 修改：地址改为可选，注册时不强制要求
+    private String address;  // 移除 @NotBlank 注解
 
     @NotBlank(message = "密码不能为空")
     @Size(min = 6, max = 20, message = "密码长度必须在6-20之间")
     private String password;
-
-    // 注意：移除了 birthday 字段，将从身份证号计算得出
 
     // Getters and Setters
     public String getName() {

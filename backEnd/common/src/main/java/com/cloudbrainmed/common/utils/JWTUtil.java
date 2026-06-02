@@ -1,6 +1,5 @@
-package com.cloudbrainmed.patient.util;  // 注意包名是 cloudbrainmed，不是 cloudbrained
+package com.cloudbrainmed.common.utils;  // 注意包名是 cloudbrainmed，不是 cloudbrained
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
