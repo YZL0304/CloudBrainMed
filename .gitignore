@@ -1,0 +1,58 @@
+ # ===================== 项目特定文件 =====================
+# 本地运行的工具包/配置，不提交到仓库
+nacos/
+sentinel-dashboard-*.jar
+
+# ===================== Java/后端 =====================
+# 编译产物
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+/target/
+/build/
+
+# IDE 配置文件
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+
+# 日志
+*.log
+logs/
+
+# ===================== 前端/移动端（Vue/React 通用） =====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+dist/
+dist-ssr/
+*.local
+
+# 编辑器目录和文件
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===================== 系统无关文件 =====================
+.DS_Store
+Thumbs.db
+desktop.ini

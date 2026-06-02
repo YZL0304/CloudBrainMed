@@ -10,6 +10,11 @@ spring:
       eager: true
   config:
     import: optional:nacos:patient-service.yml
+  datasource:
+    url: jdbc:postgresql://pgm-bp101mh91d37956ybo.pg.rds.aliyuncs.com:5432/CloudBrainMed?ssl=true&sslmode=require
+    username: iris
+    password: Abc39173551
+    driver-class-name: org.postgresql.Driver
 
 server:
   port: 8004
