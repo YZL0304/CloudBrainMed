@@ -38,6 +38,11 @@ const router = createRouter({
       name: 'mlModels',
       component: () => import('@/pages/admin/ml/Models.vue'),
     },
+    {
+      path: '/admin/ml/ct-inference',
+      name: 'ctInference',
+      component: () => import('@/pages/admin/ml/CTInference.vue'),
+    },
   ],
 })
 

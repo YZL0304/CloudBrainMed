@@ -11,6 +11,7 @@ const menuItems = [
   { path: '/admin/ml/dashboard', title: 'AI 推理看板', icon: 'DataAnalysis', group: '管理员端' },
   { path: '/admin/ml/samples', title: '样本标注', icon: 'CollectionTag', group: '管理员端' },
   { path: '/admin/ml/models', title: '模型管理', icon: 'Cpu', group: '管理员端' },
+  { path: '/admin/ml/ct-inference', title: 'CT 伪影检测', icon: 'Camera', group: '管理员端' },
 ]
 
 function showGroupLabel(item: typeof menuItems[number]) {
