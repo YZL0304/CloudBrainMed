@@ -8,11 +8,8 @@ const selectedFile = ref<File | null>(null)
 
 const API_BASE = 'http://localhost:5000'
 
-function handleFileChange(e: Event) {
-  const target = e.target as HTMLInputElement
-  if (target.files?.length) {
-    selectedFile.value = target.files[0]
-  }
+function handleFileChange(uploadFile: any) {
+  selectedFile.value = uploadFile.raw || uploadFile
 }
 
 async function runInference() {

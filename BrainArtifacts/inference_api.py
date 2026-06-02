@@ -73,11 +73,18 @@ def inference():
         tmp_path = tmp.name
 
     try:
-        # 预处理
-        img = nib.load(tmp_path)
-        ct_dir = os.path.dirname(tmp_path)
-        preprocessor = get_preprocessor(tmp_path)
-        transform = preprocessor.get_test_transform()
+        # 简化：跳过 DataPreprocessor 目录扫描，直接用固定流程
+        from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ScaleIntensityd, Spacingd, SpatialPadd, CenterSpatialCropD, ToTensord
+
+        transform = Compose([
+            LoadImaged(keys=["image"]),
+            EnsureChannelFirstd(keys=["image"]),
+            ScaleIntensityd(keys=["image"]),
+            Spacingd(keys=["image"], pixdim=(2.0, 2.0, 2.5), mode="bilinear"),
+            SpatialPadd(keys=["image"], spatial_size=(128, 128, 61)),
+            CenterSpatialCropD(keys=["image"], roi_size=(128, 128, 61)),
+            ToTensord(keys=["image"]),
+        ])
         data = transform({"image": tmp_path})
         img_tensor = data["image"].unsqueeze(0).to(DEVICE)
 
@@ -126,8 +133,17 @@ def inference_simple():
         tmp_path = tmp.name
 
     try:
-        preprocessor = get_preprocessor(tmp_path)
-        transform = preprocessor.get_test_transform()
+        from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ScaleIntensityd, Spacingd, SpatialPadd, CenterSpatialCropD, ToTensord
+
+        transform = Compose([
+            LoadImaged(keys=["image"]),
+            EnsureChannelFirstd(keys=["image"]),
+            ScaleIntensityd(keys=["image"]),
+            Spacingd(keys=["image"], pixdim=(2.0, 2.0, 2.5), mode="bilinear"),
+            SpatialPadd(keys=["image"], spatial_size=(128, 128, 61)),
+            CenterSpatialCropD(keys=["image"], roi_size=(128, 128, 61)),
+            ToTensord(keys=["image"]),
+        ])
         data = transform({"image": tmp_path})
         img_tensor = data["image"].unsqueeze(0).to(DEVICE)
 
