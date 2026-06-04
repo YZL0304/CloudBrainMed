@@ -62,5 +62,8 @@ Thumbs.db
 
 # === 训练数据集（太大，不提交） ===
 *.nii.gz
+*.dcm
 BrainArtifacts/datasets/CT/
 BrainArtifacts/datasets/mask/
+BrainCT/BrainCT/Datasets/CT/
+BrainCT/BrainCT/Datasets/MASK/

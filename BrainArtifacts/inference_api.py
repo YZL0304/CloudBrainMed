@@ -1,127 +1,40 @@
 """
-CT 伪影推理 API 服务
-=====================
+CT 伪影推理 API（使用老师 Detection 引擎）
+==========================================
 启动：python inference_api.py
 端口：5000
 """
 
 import os, sys, io, tempfile, base64
-import torch
 import numpy as np
-import nibabel as nib
+import SimpleITK as sitk
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
+# ── 路径 ──
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, _PROJECT_ROOT)
+sys.path.insert(0, os.path.join(_PROJECT_ROOT, 'BrainCT'))
+sys.path.insert(0, os.path.join(_PROJECT_ROOT, 'BrainCT', 'BrainCT'))
 
-from BrainArtifacts.model.UNet3D import UNet3D
-from BrainArtifacts.datasets.DataPreprocessor import DataPreprocessor
+from Detection.CTArtifactInfer import CTArtifactInfer
+
+MODEL_PATH = os.path.join(_PROJECT_ROOT, 'BrainCT', 'BrainCT', 'run_Attention_AdamW', 'weights', 'best.pth')
 
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH = os.path.join(_PROJECT_ROOT, "best_3dunet.pth")
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-THRESHOLD = 0.35
-
-# 全局加载模型（启动时一次）
-model = None
-preprocessor_cache = {}
-
-
-def get_preprocessor(datapath):
-    """缓存 DataPreprocessor 避免反复扫描"""
-    key = os.path.dirname(datapath)
-    if key not in preprocessor_cache:
-        preprocessor_cache[key] = DataPreprocessor(datapath=datapath)
-    return preprocessor_cache[key]
+# 全局加载
+infer = None
 
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "ok", "model_loaded": model is not None, "device": str(DEVICE)})
+    return jsonify({"status": "ok", "model": "AttentionUNet2D", "model_path": MODEL_PATH})
 
 
 @app.route("/inference", methods=["POST"])
 def inference():
-    """
-    上传 CT 文件，返回预测掩码
-
-    POST /inference
-    Content-Type: multipart/form-data
-    参数: file (CT .nii.gz)
-
-    返回:
-    {
-        "success": true,
-        "positive_pixels": 42,
-        "total_pixels": 999424,
-        "ratio": 0.0042,
-        "mask_base64": "..."    // mask 文件的 base64
-    }
-    """
-    if "file" not in request.files:
-        return jsonify({"success": False, "error": "No file uploaded"}), 400
-
-    ct_file = request.files["file"]
-    ct_data = ct_file.read()
-
-    # 保存临时文件
-    with tempfile.NamedTemporaryFile(suffix=".nii.gz", delete=False) as tmp:
-        tmp.write(ct_data)
-        tmp_path = tmp.name
-
-    try:
-        # 简化：跳过 DataPreprocessor 目录扫描，直接用固定流程
-        from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ScaleIntensityd, Spacingd, SpatialPadd, CenterSpatialCropD, ToTensord
-
-        transform = Compose([
-            LoadImaged(keys=["image"]),
-            EnsureChannelFirstd(keys=["image"]),
-            ScaleIntensityd(keys=["image"]),
-            Spacingd(keys=["image"], pixdim=(2.0, 2.0, 2.5), mode="bilinear"),
-            SpatialPadd(keys=["image"], spatial_size=(128, 128, 61)),
-            CenterSpatialCropD(keys=["image"], roi_size=(128, 128, 61)),
-            ToTensord(keys=["image"]),
-        ])
-        data = transform({"image": tmp_path})
-        img_tensor = data["image"].unsqueeze(0).to(DEVICE)
-
-        # 推理
-        with torch.no_grad():
-            logits = model(img_tensor)
-            mask = (torch.sigmoid(logits) > THRESHOLD).float()
-            mask_np = mask.squeeze().cpu().numpy()
-
-        pos = int(mask_np.sum())
-        total = mask_np.size
-
-        # 保存掩码为临时 nii.gz，转 base64 返回
-        mask_nii = nib.Nifti1Image(mask_np.astype(np.float32), np.eye(4))
-        buf = io.BytesIO()
-        nib.save(mask_nii, buf)
-        mask_b64 = base64.b64encode(buf.getvalue()).decode()
-
-        return jsonify({
-            "success": True,
-            "positive_pixels": pos,
-            "total_pixels": total,
-            "ratio": round(pos / total * 100, 6),
-            "mask_base64": mask_b64,
-        })
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-    finally:
-        os.unlink(tmp_path)
-
-
-@app.route("/inference/simple", methods=["POST"])
-def inference_simple():
-    """
-    简化版：只返回统计信息，不返回 mask 文件（更快）
-    """
+    """上传 CT .nii.gz → 返回检测统计"""
     if "file" not in request.files:
         return jsonify({"success": False, "error": "No file"}), 400
 
@@ -133,27 +46,11 @@ def inference_simple():
         tmp_path = tmp.name
 
     try:
-        from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ScaleIntensityd, Spacingd, SpatialPadd, CenterSpatialCropD, ToTensord
-
-        transform = Compose([
-            LoadImaged(keys=["image"]),
-            EnsureChannelFirstd(keys=["image"]),
-            ScaleIntensityd(keys=["image"]),
-            Spacingd(keys=["image"], pixdim=(2.0, 2.0, 2.5), mode="bilinear"),
-            SpatialPadd(keys=["image"], spatial_size=(128, 128, 61)),
-            CenterSpatialCropD(keys=["image"], roi_size=(128, 128, 61)),
-            ToTensord(keys=["image"]),
-        ])
-        data = transform({"image": tmp_path})
-        img_tensor = data["image"].unsqueeze(0).to(DEVICE)
-
-        with torch.no_grad():
-            logits = model(img_tensor)
-            mask = (torch.sigmoid(logits) > THRESHOLD).float()
-            mask_np = mask.squeeze().cpu().numpy()
-
-        pos = int(mask_np.sum())
-        total = mask_np.size
+        # 用老师的引擎推理
+        mask = infer.predict_from_nii(tmp_path)
+        mask_arr = sitk.GetArrayFromImage(mask)
+        pos = int(mask_arr.sum())
+        total = mask_arr.size
 
         return jsonify({
             "success": True,
@@ -170,9 +67,7 @@ def inference_simple():
 
 if __name__ == "__main__":
     print(f"[Server] Loading model from {MODEL_PATH}...")
-    model = UNet3D().to(DEVICE)
-    model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE, weights_only=True))
-    model.eval()
-    print(f"[Server] Model loaded. Device: {DEVICE}")
+    infer = CTArtifactInfer(model_weight_path=MODEL_PATH)
+    print(f"[Server] Model loaded. Device: cuda")
     print(f"[Server] Starting on http://localhost:5000")
     app.run(host="0.0.0.0", port=5000, debug=False)

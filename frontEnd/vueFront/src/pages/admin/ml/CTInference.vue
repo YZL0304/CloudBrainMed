@@ -24,7 +24,7 @@ async function runInference() {
     const form = new FormData()
     form.append('file', selectedFile.value)
 
-    const res = await fetch(`${API_BASE}/inference/simple`, {
+    const res = await fetch(`${API_BASE}/inference`, {
       method: 'POST',
       body: form,
     })
@@ -48,7 +48,7 @@ async function runInference() {
   <div class="ct-inference">
     <div class="page-header">
       <h2>CT 伪影检测</h2>
-      <p>上传 CT 影像（.nii.gz），U-Net 3D 模型自动检测伪影区域</p>
+      <p>上传 CT 影像（.nii.gz），Attention UNet2D 自动切片检测伪影区域</p>
     </div>
 
     <!-- 上传区 -->
@@ -65,7 +65,7 @@ async function runInference() {
           将 CT 文件拖到此处，或<em>点击上传</em>
         </div>
         <template #tip>
-          <div class="el-upload__tip">支持 .nii.gz / .nii 格式</div>
+          <div class="el-upload__tip">支持 .nii.gz 格式（3D 体数据）</div>
         </template>
       </el-upload>
 
