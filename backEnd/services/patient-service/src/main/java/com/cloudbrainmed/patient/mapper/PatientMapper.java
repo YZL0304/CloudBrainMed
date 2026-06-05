@@ -65,26 +65,4 @@ public interface PatientMapper {
      */
     @Update("UPDATE patient SET update_time = NOW() WHERE patient_id = #{patientId}")
     int updateLastLoginTime(@Param("patientId") String patientId);
-
-    // ── 模块5 患者个人信息接口 ──
-    @Select("SELECT * FROM patient WHERE patient_id = #{patientId} AND is_deleted = 0")
-    Patient findById(@Param("patientId") String patientId);
-
-    @Update("UPDATE patient SET name=#{name}, gender=#{gender}, address=#{address}, birthday=#{birthday}, update_time=NOW() WHERE patient_id=#{patientId}")
-    int updateInfo(Patient patient);
-
-    @Update("UPDATE patient SET avatar=#{avatar}, update_time=NOW() WHERE patient_id=#{patientId}")
-    int updateAvatar(@Param("patientId") String patientId, @Param("avatar") String avatar);
-
-    @Select("SELECT patient_id FROM patient WHERE patient_id=#{patientId} AND phone=#{oldPhone} AND is_deleted=0")
-    String checkPhone(@Param("patientId") String patientId, @Param("oldPhone") String oldPhone);
-
-    @Select("SELECT patient_id FROM patient WHERE phone=#{newPhone} AND is_deleted=0")
-    String findByPhone(String newPhone);
-
-    @Update("UPDATE patient SET phone=#{newPhone}, update_time=NOW() WHERE patient_id=#{patientId}")
-    int updatePhone(@Param("patientId") String patientId, @Param("newPhone") String newPhone);
-
-    @Select("SELECT password FROM patient WHERE patient_id=#{patientId} AND is_deleted=0")
-    String findPasswordById(@Param("patientId") String patientId);
 }
