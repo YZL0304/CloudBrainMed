@@ -16,7 +16,7 @@ import java.util.Map;
  * JWT工具类
  */
 @Component
-public class JWTUtil_temp {
+public class JwtUtil {
 
     @Value("${jwt.secret:cloudbrainmedSecretKey2024SecureLongKeyForJWT}")
     private String secret;
