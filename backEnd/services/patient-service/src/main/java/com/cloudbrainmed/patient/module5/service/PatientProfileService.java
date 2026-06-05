@@ -1,6 +1,6 @@
 package com.cloudbrainmed.patient.module5.service;
 
-import com.cloudbrainmed.patient.module5.entity.Patient;
+import com.cloudbrainmed.patient.entity.Patient;
 
 public interface PatientProfileService {
     Patient getInfo(String patientId);

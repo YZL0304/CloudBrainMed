@@ -1,8 +1,8 @@
 package com.cloudbrainmed.patient.module5.service.impl;
 
 import com.cloudbrainmed.common.exception.BusinessException;
-import com.cloudbrainmed.patient.module5.entity.Patient;
-import com.cloudbrainmed.patient.module5.mapper.PatientMapper;
+import com.cloudbrainmed.patient.entity.Patient;
+import com.cloudbrainmed.patient.mapper.PatientMapper;
 import com.cloudbrainmed.patient.module5.service.PatientProfileService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;

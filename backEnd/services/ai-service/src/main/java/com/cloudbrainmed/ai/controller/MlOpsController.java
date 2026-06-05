@@ -1,7 +1,7 @@
-package org.example.backend.guanliyuan.controller;
+package com.cloudbrainmed.ai.controller;
 
-import org.example.backend.common.Result;
-import org.example.backend.guanliyuan.service.MlOpsService;
+import com.cloudbrainmed.common.result.Result;
+import com.cloudbrainmed.ai.service.MlOpsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;

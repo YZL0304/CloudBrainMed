@@ -1,7 +1,7 @@
-package org.example.backend.yisheng.controller;
+package com.cloudbrainmed.doctor.controller;
 
-import org.example.backend.common.Result;
-import org.example.backend.yisheng.service.DoctorProfileService;
+import com.cloudbrainmed.common.result.Result;
+import com.cloudbrainmed.doctor.service.DoctorProfileService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
