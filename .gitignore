@@ -1,64 +1,61 @@
-# === Java / Maven ===
-backEnd/target/
-backEnd/*.jar
-backEnd/*.war
+ # ===================== 项目特定文件 =====================
+# 本地运行的工具包/配置，不提交到仓库
+nacos/
+sentinel-dashboard-*.jar
+
+# ===================== Java/后端 =====================
+# 编译产物
 *.class
-*.log
-hs_err_pid*.log
-
-# === Vue / Node ===
-frontEnd/vueFront/node_modules/
-frontEnd/vueFront/dist/
-frontEnd/vueFront/.vite/
+*.jar
+*.war
+*.nar
+*.ear
 *.zip
+*.tar.gz
+*.rar
+/target/
+/build/
 
-# === Python ===
-.venv/
-__pycache__/
-*.pyc
-*.pyo
-
-# === IDE ===
+# IDE 配置文件
 .idea/
 *.iml
+*.ipr
+*.iws
 .vscode/
-.hvigor/
-oh_modules/
+*.swp
+*.swo
 
-# === 数据集（太大，不要提交） ===
-data/
-backup/
-course/
-teach/
+# 日志
+*.log
+logs/
 
-# === 标注成果（单独发群里） ===
-biaozhu/
+# ===================== 前端/移动端（Vue/React 通用） =====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# === macOS 系统文件 ===
+dist/
+dist-ssr/
+*.local
+
+# 编辑器目录和文件
+.vscode/*
+!.vscode/extensions.json
+.idea/
 .DS_Store
-__MACOSX/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# === Nacos（日志+编译产物，太大） ===
-others/**/logs/
-others/**/target/
-others/**/data/
-others/**/nacos-server.jar
-others/*.jar
-
-# === Sentinel JAR（22MB） ===
-others/*.jar
-
-# === 临时文件 ===
-~$*
-*.tmp
-*.temp
-
-# === 环境配置（不要提交密码） ===
-.env
-*.local.properties
-
-# === 操作系统 ===
+# ===================== 系统无关文件 =====================
+.DS_Store
 Thumbs.db
+<<<<<<< HEAD
 
 # === 训练数据集（太大，不提交） ===
 *.nii.gz
@@ -89,3 +86,9 @@ backEnd/src/main/java/org/example/backend/
 # === 注意：以下 .md 文件需要保留 ===
 # wiki 中的训练流程图与架构图除外
 # 如果成果物需要保留，手动 git add 指定文件
+=======
+desktop.ini
+>>>>>>> 2247f8ba28557bb5f914504fbd9c1661716886cf
+course/CTAnnotationTool.exe
+course/1.raw
+course/brain_ct.nrrd
