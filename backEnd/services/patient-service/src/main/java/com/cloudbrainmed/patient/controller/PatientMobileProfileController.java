@@ -22,7 +22,7 @@ public class PatientMobileProfileController {
     @GetMapping("/info")
     public Result<?> info(@RequestHeader(value = "token", required = false) String token) {
         String patientId = extractPatientId(token);
-        return Result.success(service.getInfo(patientId));
+        return Result.ok(service.getInfo(patientId));
     }
 
     /** 4.3.1.2 更新基础信息 */
@@ -33,7 +33,7 @@ public class PatientMobileProfileController {
         service.updateInfo(patientId,
                 body.get("name"), body.get("gender"),
                 body.get("address"), body.get("birthday"));
-        return Result.success("成功", null);
+        return Result.ok();
     }
 
     /** 4.3.1.3 头像上传 */
@@ -42,7 +42,7 @@ public class PatientMobileProfileController {
                                   @RequestParam("file") MultipartFile file) throws IOException {
         String patientId = extractPatientId(token);
         String url = service.uploadAvatar(patientId, file.getBytes(), file.getOriginalFilename());
-        return Result.success(Map.of("avatarUrl", url));
+        return Result.ok(Map.of("avatarUrl", url));
     }
 
     /** 4.3.1.4 修改手机号 */
@@ -52,7 +52,7 @@ public class PatientMobileProfileController {
         String patientId = extractPatientId(token);
         service.changePhone(patientId,
                 body.get("oldPhone"), body.get("newPhone"), body.get("smsCode"));
-        return Result.success("成功", null);
+        return Result.ok();
     }
 
     /** 4.3.1.5 修改登录密码 */
@@ -62,7 +62,7 @@ public class PatientMobileProfileController {
         String patientId = extractPatientId(token);
         service.changePassword(patientId,
                 body.get("oldPassword"), body.get("newPassword"));
-        return Result.success("成功", null);
+        return Result.ok();
     }
 
     /** 4.3.1.6 身份证修改权限验证 */
@@ -71,7 +71,7 @@ public class PatientMobileProfileController {
                                   @RequestBody Map<String, String> body) {
         String patientId = extractPatientId(token);
         service.verifyIdCard(patientId, body.get("password"));
-        return Result.success("成功", null);
+        return Result.ok();
     }
 
     private String extractPatientId(String token) {

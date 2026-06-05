@@ -1,9 +1,27 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { computed, ref } from 'vue'
+import { ElIcon } from 'element-plus'
+import {
+  UserFilled,
+  List,
+  DataAnalysis,
+  CollectionTag,
+  Cpu,
+  Camera,
+} from '@element-plus/icons-vue'
 
 const route = useRoute()
 const collapsed = ref(false)
+
+const iconMap: Record<string, any> = {
+  UserFilled,
+  List,
+  DataAnalysis,
+  CollectionTag,
+  Cpu,
+  Camera,
+}
 
 const menuItems = [
   { path: '/doctor/profile', title: '医生个人信息', icon: 'UserFilled', group: '医生端' },
@@ -44,7 +62,7 @@ function showGroupLabel(item: typeof menuItems[number]) {
             {{ item.group }}
           </div>
           <router-link :to="item.path" class="nav-item">
-            <el-icon :size="20"><component :is="item.icon" /></el-icon>
+            <el-icon :size="20"><component :is="iconMap[item.icon]" /></el-icon>
             <span v-show="!collapsed">{{ item.title }}</span>
           </router-link>
         </template>
