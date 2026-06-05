@@ -56,6 +56,7 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # === 训练数据集（太大，不提交） ===
 *.nii.gz
@@ -92,3 +93,6 @@ desktop.ini
 course/CTAnnotationTool.exe
 course/1.raw
 course/brain_ct.nrrd
+=======
+desktop.ini
+>>>>>>> 2247f8ba28557bb5f914504fbd9c1661716886cf
