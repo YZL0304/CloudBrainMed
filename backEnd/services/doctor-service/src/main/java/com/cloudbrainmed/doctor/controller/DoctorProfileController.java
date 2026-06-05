@@ -1,21 +1,42 @@
 package com.cloudbrainmed.doctor.controller;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 import com.cloudbrainmed.common.result.Result;
-import com.cloudbrainmed.doctor.service.DoctorProfileService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.Map;
-=======
-import org.springframework.web.bind.annotation.RestController;
->>>>>>> 2247f8ba28557bb5f914504fbd9c1661716886cf
-=======
-import org.springframework.web.bind.annotation.RestController;
->>>>>>> 2247f8ba28557bb5f914504fbd9c1661716886cf
 
 @RestController
+@RequestMapping("/api/doctor/profile")
 public class DoctorProfileController {
+
+    @GetMapping("/info")
+    public Result<?> info(@RequestHeader(value = "token", required = false) String token) {
+        String doctorId = extractDoctorId(token);
+        return Result.ok(Map.of("doctorId", doctorId, "name", "Dr. " + doctorId));
+    }
+
+    @PutMapping("/update")
+    public Result<?> update(@RequestHeader(value = "token", required = false) String token,
+                            @RequestBody Map<String, String> body) {
+        return Result.ok();
+    }
+
+    @PostMapping("/avatar-upload")
+    public Result<?> avatarUpload(@RequestHeader(value = "token", required = false) String token,
+                                   @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        return Result.ok(Map.of("avatarUrl", "/files/avatar/default.png"));
+    }
+
+    @PostMapping("/change-phone")
+    public Result<?> changePhone(@RequestHeader(value = "token", required = false) String token,
+                                  @RequestBody Map<String, String> body) {
+        return Result.ok();
+    }
+
+    @PostMapping("/change-password")
+    public Result<?> changePassword(@RequestHeader(value = "token", required = false) String token,
+                                     @RequestBody Map<String, String> body) {
+        return Result.ok();
+    }
+
+    private String extractDoctorId(String token) { return "D001"; }
 }
