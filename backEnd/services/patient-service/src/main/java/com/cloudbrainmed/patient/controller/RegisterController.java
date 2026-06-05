@@ -1,100 +1,56 @@
 package com.cloudbrainmed.patient.controller;
 
-
-import com.cloudbrainmed.patient.dto.RegisterQueryDto;
+import com.cloudbrainmed.common.result.Result;
 import com.cloudbrainmed.patient.dto.RegisterSubmitDto;
-import com.cloudbrainmed.patient.service.PatientService;
-import com.cloudbrainmed.patient.vo.RegisterVo;
-import com.cloudbrainmed.patient.vo.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
+import com.cloudbrainmed.patient.entity.Dept;
+import com.cloudbrainmed.patient.entity.Doctor;
+import com.cloudbrainmed.patient.entity.DoctorSchedule;
+import com.cloudbrainmed.patient.entity.Registration;
+import com.cloudbrainmed.patient.service.RegisterService;
+import com.cloudbrainmed.patient.vo.DoctorDetailVo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
-/**
- * 患者挂号控制器
- */
 @RestController
-@RequestMapping("/api/patient/register")
-@Validated
+@RequestMapping("/patient-service/register")
+@RequiredArgsConstructor
 public class RegisterController {
 
-    @Autowired
-    private PatientService patientService;
+    private final RegisterService registerService;
 
-    /**
-     * 获取可预约科室列表
-     */
     @GetMapping("/depts")
-    public Result<List<Map<String, Object>>> getAvailableDepts() {
-        List<Map<String, Object>> depts = patientService.getAvailableDepts();
-        return Result.success(depts);
+    public Result<List<Dept>> getAllDepts() {
+        return Result.success(registerService.getAllDepts());
     }
 
-    /**
-     * 根据科室获取医生列表
-     */
-    @GetMapping("/doctors")
-    public Result<List<Map<String, Object>>> getDoctorsByDept(@RequestParam String deptId) {
-        List<Map<String, Object>> doctors = patientService.getDoctorsByDept(deptId);
-        return Result.success(doctors);
+    @GetMapping("/doctors/{deptId}")
+    public Result<List<Doctor>> getDoctorsByDept(@PathVariable String deptId) {
+        return Result.success(registerService.getDoctorsByDept(deptId));
     }
 
-    /**
-     * 获取医生的可预约时间段
-     */
-    @GetMapping("/timeslots")
-    public Result<List<String>> getAvailableTimeSlots(@RequestParam String doctorId,
-                                                      @RequestParam String registerDate) {
-        List<String> timeSlots = patientService.getAvailableTimeSlots(doctorId, registerDate);
-        return Result.success(timeSlots);
+    @GetMapping("/doctor/{doctorId}")
+    public Result<DoctorDetailVo> getDoctorDetail(@PathVariable String doctorId) {
+        return Result.success(registerService.getDoctorDetail(doctorId));
     }
 
-    /**
-     * 提交挂号
-     */
+    @GetMapping("/schedules/{doctorId}")
+    public Result<List<DoctorSchedule>> getDoctorSchedules(@PathVariable String doctorId) {
+        return Result.success(registerService.getDoctorSchedules(doctorId));
+    }
+
     @PostMapping("/submit")
-    public Result<String> submitRegister(@Valid @RequestBody RegisterSubmitDto registerSubmitDto) {
-        boolean result = patientService.submitRegister(registerSubmitDto);
-        if (result) {
-            return Result.success("挂号成功", null);
-        }
-        return Result.error("挂号失败");
+    public Result<Registration> submitRegister(@RequestBody RegisterSubmitDto dto) {
+        return Result.success(registerService.submitRegister(dto));
     }
 
-    /**
-     * 查询挂号记录
-     */
-    @PostMapping("/history")
-    public Result<List<RegisterVo>> getRegisterHistory(@RequestBody RegisterQueryDto registerQueryDto) {
-        List<RegisterVo> registers = patientService.getRegisterHistory(registerQueryDto);
-        return Result.success(registers);
+    @GetMapping("/history/{patientId}")
+    public Result<List<Registration>> getRegisterHistory(@PathVariable String patientId) {
+        return Result.success(registerService.getRegisterHistory(patientId));
     }
 
-    /**
-     * 取消挂号
-     */
-    @PutMapping("/cancel/{registerId}")
-    public Result<String> cancelRegister(@PathVariable String registerId, @RequestParam String patientId) {
-        boolean result = patientService.cancelRegister(registerId, patientId);
-        if (result) {
-            return Result.success("取消挂号成功", null);
-        }
-        return Result.error("取消挂号失败");
-    }
-
-    /**
-     * 获取挂号详情
-     */
     @GetMapping("/detail/{registerId}")
-    public Result<RegisterVo> getRegisterDetail(@PathVariable String registerId, @RequestParam String patientId) {
-        RegisterVo detail = patientService.getRegisterDetail(registerId, patientId);
-        if (detail == null) {
-            return Result.error("挂号记录不存在");
-        }
-        return Result.success(detail);
+    public Result<Registration> getRegisterDetail(@PathVariable String registerId) {
+        return Result.success(registerService.getRegisterDetail(registerId));
     }
 }

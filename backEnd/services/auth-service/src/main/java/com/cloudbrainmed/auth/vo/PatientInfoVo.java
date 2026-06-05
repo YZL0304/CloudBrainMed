@@ -1,4 +1,4 @@
-package com.cloudbrainmed.patient.vo;
+package com.cloudbrainmed.auth.vo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

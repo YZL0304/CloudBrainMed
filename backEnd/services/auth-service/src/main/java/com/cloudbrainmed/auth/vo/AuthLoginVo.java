@@ -1,4 +1,4 @@
-package com.cloudbrainmed.patient.vo;
+package com.cloudbrainmed.auth.vo;
 
 /**
  * 登录响应VO
