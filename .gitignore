@@ -67,3 +67,25 @@ BrainArtifacts/datasets/CT/
 BrainArtifacts/datasets/mask/
 BrainCT/BrainCT/Datasets/CT/
 BrainCT/BrainCT/Datasets/MASK/
+
+# === 训练产物（图表+权重，几十MB，不要提交） ===
+BrainCT/BrainCT/run_*/
+BrainCT/Detection/best.pth
+BrainArtifacts/best_3dunet.pth
+best_3dunet.pth
+*.pth
+
+# === 旧单体架构（已迁移到微服务，可删除） ===
+backEnd/src/main/java/org/example/backend/
+
+# === 非代码文件 ===
+*.docx
+*.pptx
+*.pdf
+*.md
+*.png
+*.jpg
+
+# === 注意：以下 .md 文件需要保留 ===
+# wiki 中的训练流程图与架构图除外
+# 如果成果物需要保留，手动 git add 指定文件
