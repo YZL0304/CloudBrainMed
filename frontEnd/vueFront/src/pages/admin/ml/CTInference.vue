@@ -102,6 +102,12 @@ async function runInference() {
             {{ result.ratio }}%
           </div>
         </el-card>
+
+        <el-card v-if="result.feature_dim" shadow="hover">
+          <template #header>特征向量维度</template>
+          <div class="card-value" style="font-size:20px">{{ result.feature_dim }} 维</div>
+          <span style="color:#909399;font-size:12px">可存数据库用于聚类分析</span>
+        </el-card>
       </div>
 
       <el-alert

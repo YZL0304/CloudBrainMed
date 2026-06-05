@@ -6,7 +6,6 @@ from tqdm import tqdm
 from BrainCT.Conf.Config import *
 from BrainCT.Model.AttentionUNet2D import UNet2D
 
-
 class CTArtifactInfer:
 
     def __init__(self, model_weight_path, device=None):

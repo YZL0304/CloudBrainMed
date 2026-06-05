@@ -52,11 +52,22 @@ def inference():
         pos = int(mask_arr.sum())
         total = mask_arr.size
 
+        # 提取特征向量（960维），用于聚类分析
+        features = None
+        try:
+            if hasattr(infer.model, 'extract_features'):
+                feat = infer.model.extract_features()
+                features = feat.squeeze().detach().cpu().numpy().tolist()
+        except Exception:
+            pass
+
         return jsonify({
             "success": True,
             "positive_pixels": pos,
             "total_pixels": total,
             "ratio": round(pos / total * 100, 6),
+            "feature_dim": len(features) if features else 0,
+            "feature_vector": features,
         })
 
     except Exception as e:
