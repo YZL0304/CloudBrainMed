@@ -59,8 +59,6 @@ const stats = [
 const modules = [
   { path: '/doctor/profile', title: '医生个人信息', desc: '查看编辑资料、头像上传、密码修改', icon: 'UserFilled', color: '#2563eb' },
   { path: '/doctor/consult', title: '接诊工作台', desc: '患者接诊列表、病历编辑、检查申请', icon: 'List', color: '#0d9488' },
-  // AI 问诊入口：医生快速进入 AI 医药查询页面
-  { path: '/doctor/ai-medicine', title: 'AI 智能问诊', desc: '药品智能查询与用药建议', icon: 'DataAnalysis', color: '#165DFF' },
   { path: '/admin/ml/dashboard', title: 'AI 推理看板', desc: '成功率、采纳率、耗时统计', icon: 'DataAnalysis', color: '#7c3aed' },
   { path: '/admin/ml/samples', title: '样本标注', desc: 'AI 反馈样本、标签管理', icon: 'CollectionTag', color: '#f59e0b' },
   { path: '/admin/ml/models', title: '模型管理', desc: '版本注册、流量灰度、训练触发', icon: 'Cpu', color: '#ef4444' },

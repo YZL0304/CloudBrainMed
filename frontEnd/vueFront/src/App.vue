@@ -14,11 +14,6 @@ import {
 const route = useRoute()
 const collapsed = ref(false)
 
-// 判断是否需要显示侧栏
-const showSidebar = computed(() => {
-  return route.path !== '/login'
-})
-
 const iconMap: Record<string, any> = {
   UserFilled,
   List,
@@ -44,7 +39,7 @@ function showGroupLabel(item: typeof menuItems[number]) {
 </script>
 
 <template>
-  <div class="app-shell" v-if="showSidebar">
+  <div class="app-shell">
     <aside class="sidebar" :class="{ collapsed }">
       <div class="brand" @click="$router.push('/')">
         <div class="brand-icon">
@@ -83,8 +78,6 @@ function showGroupLabel(item: typeof menuItems[number]) {
       <RouterView />
     </main>
   </div>
-  <!-- 登录页面独立显示 -->
-  <RouterView v-else />
 </template>
 
 <style>
