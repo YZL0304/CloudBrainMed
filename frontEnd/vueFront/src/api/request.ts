@@ -2,15 +2,13 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const request = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'http://localhost:80',
+  baseURL: 'http://localhost:8080',
   timeout: 15000,
 })
 
 request.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
+  const token = localStorage.getItem('token')
+  if (token) config.headers.token = token
   return config
 })
 
@@ -18,8 +16,8 @@ request.interceptors.response.use(
   (res) => {
     const data = res.data
     if (data.code !== 200) {
-      ElMessage.error(data.message || '请求失败')
-      return Promise.reject(new Error(data.message))
+      ElMessage.error(data.msg || '请求失败')
+      return Promise.reject(new Error(data.msg))
     }
     return data
   },
@@ -30,6 +28,3 @@ request.interceptors.response.use(
 )
 
 export default request
-
-
-
