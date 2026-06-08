@@ -1,6 +1,5 @@
 package com.cloudbrainmed.patient.mapper;
 
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cloudbrainmed.patient.entity.Doctor;
 import org.apache.ibatis.annotations.Mapper;

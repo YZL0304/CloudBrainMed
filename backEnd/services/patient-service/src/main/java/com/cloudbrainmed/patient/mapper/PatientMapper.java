@@ -53,4 +53,5 @@ public interface PatientMapper {
      */
     @Update("UPDATE patient SET update_time = NOW() WHERE patient_id = #{patientId}")
     int updateLastLoginTime(@Param("patientId") String patientId);
+
 }
