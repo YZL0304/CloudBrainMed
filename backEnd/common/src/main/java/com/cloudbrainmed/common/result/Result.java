@@ -31,6 +31,14 @@ public class Result<T> {
         return new Result<>(code, message, null);
     }
 
+    public static <T> Result<T> ok(T data) {
+        return success("成功", data);
+    }
+
+    public static <T> Result<T> ok() {
+        return success("成功", null);
+    }
+
     public Integer getCode() {
         return code;
     }
