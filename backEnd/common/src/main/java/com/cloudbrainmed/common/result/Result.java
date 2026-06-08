@@ -40,7 +40,6 @@ public class Result<T> {
         return success("成功", null);
     }
 
-    // getters & setters
     public Integer getCode() {
         return code;
     }

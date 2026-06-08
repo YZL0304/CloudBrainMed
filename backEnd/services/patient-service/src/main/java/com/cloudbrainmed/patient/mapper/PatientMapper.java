@@ -36,11 +36,22 @@ public interface PatientMapper {
     @Select("SELECT * FROM patient WHERE phone = #{phone} AND is_deleted = 0")
     Patient selectByPhone(@Param("phone") String phone);
 
+    /**
+     * 根据身份证号查询患者
+     */
+    @Select("SELECT * FROM patient WHERE id_card = #{idCard} AND is_deleted = 0")
+    Patient selectByIdCard(@Param("idCard") String idCard);
 
     /**
      * 更新密码
      */
     @Update("UPDATE patient SET password = #{password}, update_time = NOW() WHERE patient_id = #{patientId}")
     int updatePassword(@Param("patientId") String patientId, @Param("password") String password);
+
+    /**
+     * 更新最后登录时间
+     */
+    @Update("UPDATE patient SET update_time = NOW() WHERE patient_id = #{patientId}")
+    int updateLastLoginTime(@Param("patientId") String patientId);
 
 }
