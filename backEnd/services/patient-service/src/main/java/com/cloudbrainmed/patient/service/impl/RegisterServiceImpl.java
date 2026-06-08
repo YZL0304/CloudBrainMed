@@ -81,7 +81,7 @@ public class RegisterServiceImpl implements RegisterService {
     @Transactional(rollbackFor = Exception.class)
     public Registration submitRegister(RegisterSubmitDto dto) {
         // 校验患者是否存在
-        Patient patient = patientMapper.selectByPatientId(dto.getPatientId());
+        Patient patient = patientMapper.selectById(dto.getPatientId());
         if (patient == null) {
             throw new BusinessException("患者不存在");
         }
