@@ -1,0 +1,12 @@
+{
+  "src": [
+    "pages/login/RegisterPage",
+    "pages/login/LoginPage",
+    "pages/Index",
+    "pages/register/DeptListPage",
+    "pages/register/DoctorListPage",
+    "pages/register/OrderSuccessPage",
+    "pages/register/RegisterHistoryPage",
+    "pages/register/ScheduleSelectPage"
+  ]
+}
