@@ -71,7 +71,7 @@ export class HttpUtil {
           duration: 2000
         });
         router.replaceUrl({
-          url: 'pages/LoginPage'
+          url: 'pages/login/LoginPage'
         });
         // ArkTS 要求 throw 的值必须是 Error 类型
         throw new Error('Unauthorized');

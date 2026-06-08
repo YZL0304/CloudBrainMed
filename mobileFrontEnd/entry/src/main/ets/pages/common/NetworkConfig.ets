@@ -1,7 +1,7 @@
 // common/NetworkConfig.ets
 export class NetworkConfig {
   // 开发环境地址
-  static readonly DEV_BASE_URL: string = 'http://172.22.101.145:8004/api';
+  static readonly DEV_BASE_URL: string = 'http://172.22.101.145:8002/api';
 
   // 生产环境地址
   static readonly PROD_BASE_URL: string = 'https://api.cloudbrainmed.com/api';

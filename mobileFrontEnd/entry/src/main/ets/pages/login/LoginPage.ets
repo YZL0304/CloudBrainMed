@@ -34,7 +34,35 @@ struct LoginPage {
   @State passwordError: string = '';
   @State showPassword: boolean = false;
 
-  private baseUrl: string = 'http://你的服务器IP:8080/api/patient';
+  @State phoneFocused: boolean = false;
+  @State passwordFocused: boolean = false;
+
+  private baseUrl: string = 'http://172.22.101.145:8002/auth-service';
+
+  // 页面出现时获取路由参数
+  aboutToAppear() {
+    // 获取从注册页传递的参数
+    const params = router.getParams() as Record<string, string>;
+    if (params) {
+      const phoneParam = params['phone'];
+      const passwordParam = params['password'];
+
+      if (phoneParam) {
+        this.phone = phoneParam;
+      }
+      if (passwordParam) {
+        this.password = passwordParam;
+      }
+
+      // 如果同时有手机号和密码，可以自动填充后提示用户
+      if (phoneParam && passwordParam) {
+        promptAction.showToast({
+          message: '注册成功，请登录',
+          duration: 2000
+        });
+      }
+    }
+  }
 
   // 简单的前端验证
   private validateForm(): boolean {
@@ -79,6 +107,11 @@ struct LoginPage {
       return;
     }
 
+    console.log('========== 登录请求开始 ==========');
+    console.log('手机号: ' + this.phone);
+    console.log('密码: ' + this.password);
+    console.log('请求URL: ' + this.baseUrl + '/patient/login');
+
     this.isLoading = true;
 
     const context = getContext(this);
@@ -90,7 +123,7 @@ struct LoginPage {
 
     try {
       const result = await HttpUtil.post<ApiResponse<LoginData>>(
-        this.baseUrl + '/auth/login',
+        this.baseUrl + '/patient/login',
         requestData,
         context
       );
@@ -104,7 +137,7 @@ struct LoginPage {
 
         setTimeout(() => {
           router.pushUrl({
-            url: 'pages/HomePage',
+            url: 'pages/Index',
             params: {
               patientId: result.data.patientId,
               name: result.data.name
@@ -131,143 +164,181 @@ struct LoginPage {
   // 跳转注册页
   private goToRegister(): void {
     router.pushUrl({
-      url: 'pages/RegisterPage'
+      url: 'pages/login/RegisterPage'
     });
   }
 
   // 跳转找回密码页
   private goToForgotPassword(): void {
     router.pushUrl({
-      url: 'pages/ForgotPasswordPage'
+      url: 'pages/login/ForgotPasswordPage'
     });
   }
 
   build() {
-    Column() {
+    Scroll() {
       Column() {
-        Text('智慧医疗')
-          .fontSize(28)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#333333')
-          .margin({ top: 80, bottom: 60 })
-      }
-      .width('100%')
+        // Logo 图片
+        Image($r('app.media.logo'))
+          .width(80)
+          .height(80)
+          .margin({ top: 40, bottom: 16 })
+          .objectFit(ImageFit.Contain)
 
-      Column() {
-        // 手机号输入框
+        // 标题区域
         Column() {
-          Row() {
-            Text('📱')
-              .fontSize(20)
-              .margin({ right: 12 })
+          Text('用户登录')
+            .fontSize(40)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#333333')
+            .margin({ bottom: 8 })
 
-            TextInput({ placeholder: '请输入手机号', text: this.phone })
-              .layoutWeight(1)
-              .height(48)
-              .backgroundColor(Color.Transparent)
-              .fontSize(16)
-              .type(InputType.PhoneNumber)
-              .maxLength(11)
-              .onChange((value: string) => {
-                this.phone = value;
-                if (this.phoneError) {
-                  this.phoneError = '';
-                }
-              })
-          }
-          .width('100%')
-          .height(52)
-          .padding({ left: 16, right: 16 })
-          .borderRadius(8)
-          .backgroundColor('#F5F5F5')
-
-          if (this.phoneError) {
-            Text(this.phoneError)
-              .fontSize(12)
-              .fontColor('#FF4444')
-              .margin({ top: 4, left: 16 })
-          }
-        }
-        .margin({ bottom: 20 })
-        .width('100%')
-
-        // 密码输入框
-        Column() {
-          Row() {
-            Text('🔒')
-              .fontSize(20)
-              .margin({ right: 12 })
-
-            TextInput({ placeholder: '请输入密码', text: this.password })
-              .layoutWeight(1)
-              .height(48)
-              .backgroundColor(Color.Transparent)
-              .fontSize(16)
-              .type(this.showPassword ? InputType.Normal : InputType.Password)
-              .onChange((value: string) => {
-                this.password = value;
-                if (this.passwordError) {
-                  this.passwordError = '';
-                }
-              })
-
-            Text(this.showPassword ? '👁️' : '👁️‍🗨️')
-              .fontSize(20)
-              .onClick(() => {
-                this.showPassword = !this.showPassword;
-              })
-          }
-          .width('100%')
-          .height(52)
-          .padding({ left: 16, right: 16 })
-          .borderRadius(8)
-          .backgroundColor('#F5F5F5')
-
-          if (this.passwordError) {
-            Text(this.passwordError)
-              .fontSize(12)
-              .fontColor('#FF4444')
-              .margin({ top: 4, left: 16 })
-          }
-        }
-        .margin({ bottom: 12 })
-        .width('100%')
-
-        // 忘记密码
-        Row() {
-          Text('忘记密码？')
+          Text('欢迎回到智慧医疗')
             .fontSize(14)
-            .fontColor('#007AFF')
-            .onClick(() => this.goToForgotPassword())
+            .fontColor('#8a8a8a')
         }
         .width('100%')
-        .justifyContent(FlexAlign.End)
-        .margin({ bottom: 30 })
+        .margin({ top: 8, bottom: 60 })
+        .alignItems(HorizontalAlign.Center)
+
+        // 表单区域 - 下划线样式
+        Column() {
+          // 手机号输入框
+          Column() {
+            Row() {
+              Text('手机号')
+                .fontSize(14)
+                .fontColor('#333333')
+                .width(80)
+                .fontWeight(500)
+
+              TextInput({ placeholder: '请输入手机号', text: this.phone })
+                .layoutWeight(1)
+                .height(44)
+                .backgroundColor('transparent')
+                .border({ width: { bottom: 1 }, color: this.phoneFocused ? '#007AFF' : '#e0e0e0' })
+                .padding({ left: 0, right: 0, bottom: 8 })
+                .type(InputType.PhoneNumber)
+                .maxLength(11)
+                .fontSize(14)
+                .placeholderColor('#bfbfbf')
+                .onChange((value: string) => {
+                  this.phone = value;
+                  if (this.phoneError) this.phoneError = '';
+                })
+                .onFocus(() => {
+                  this.phoneFocused = true;
+                })
+                .onBlur(() => {
+                  this.phoneFocused = false;
+                })
+            }
+            .width('100%')
+            .alignItems(VerticalAlign.Center)
+
+            if (this.phoneError) {
+              Text(this.phoneError)
+                .fontSize(12)
+                .fontColor('#ff4d4f')
+                .margin({ top: 4, left: 80 })
+            }
+          }
+          .margin({ bottom: 24 })
+          .width('100%')
+
+          // 密码输入框
+          Column() {
+            Row() {
+              Text('密码')
+                .fontSize(14)
+                .fontColor('#333333')
+                .width(80)
+                .fontWeight(500)
+
+              TextInput({ placeholder: '请输入密码', text: this.password })
+                .layoutWeight(1)
+                .height(44)
+                .backgroundColor('transparent')
+                .border({ width: { bottom: 1 }, color: this.passwordFocused ? '#007AFF' : '#e0e0e0' })
+                .padding({ left: 0, right: 0, bottom: 8 })
+                .type(this.showPassword ? InputType.Normal : InputType.Password)
+                .fontSize(14)
+                .placeholderColor('#bfbfbf')
+                .onChange((value: string) => {
+                  this.password = value;
+                  if (this.passwordError) this.passwordError = '';
+                })
+                .onFocus(() => {
+                  this.passwordFocused = true;
+                })
+                .onBlur(() => {
+                  this.passwordFocused = false;
+                })
+            }
+            .width('100%')
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text(this.showPassword ? '隐藏密码' : '显示密码')
+                .fontSize(12)
+                .fontColor('#007AFF')
+                .onClick(() => {
+                  this.showPassword = !this.showPassword;
+                })
+            }
+            .width('100%')
+            .justifyContent(FlexAlign.End)
+            .margin({ top: 4 })
+
+            if (this.passwordError) {
+              Text(this.passwordError)
+                .fontSize(12)
+                .fontColor('#ff4d4f')
+                .margin({ top: 4, left: 80 })
+            }
+          }
+          .margin({ bottom: 16 })
+          .width('100%')
+
+          // 忘记密码
+          Row() {
+            Text('忘记密码？')
+              .fontSize(14)
+              .fontColor('#007AFF')
+              .onClick(() => this.goToForgotPassword())
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.End)
+          .margin({ bottom: 40 })
+        }
+        .width('100%')
+        .padding({ left: 24, right: 24 })
 
         // 登录按钮
-        Button('登 录')
-          .width('100%')
+        Button('立即登录')
+          .width('85%')
           .height(48)
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
-          .backgroundColor(this.isLoading ? '#CCCCCC' : '#007AFF')
+          .fontColor('#ffffff')
+          .backgroundColor(this.isLoading ? '#d9d9d9' : '#007AFF')
           .borderRadius(24)
           .enabled(!this.isLoading)
           .onClick(() => this.login())
 
         if (this.isLoading) {
           LoadingProgress()
-            .width(40)
-            .height(40)
+            .width(32)
+            .height(32)
             .color('#007AFF')
-            .margin({ top: 16 })
+            .margin({ top: 12 })
         }
 
         // 注册入口
         Row() {
           Text('还没有账号？')
             .fontSize(14)
-            .fontColor('#666666')
+            .fontColor('#8a8a8a')
 
           Text('立即注册')
             .fontSize(14)
@@ -276,13 +347,15 @@ struct LoginPage {
             .margin({ left: 8 })
             .onClick(() => this.goToRegister())
         }
-        .margin({ top: 30 })
+        .margin({ top: 32, bottom: 50 })
       }
       .width('100%')
-      .padding(24)
+      .padding({ left: 16, right: 16 })
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#FFFFFF')
+    .backgroundColor('#ffffff')
+    .scrollable(ScrollDirection.Vertical)
+    .scrollBar(BarState.Off)
   }
 }
