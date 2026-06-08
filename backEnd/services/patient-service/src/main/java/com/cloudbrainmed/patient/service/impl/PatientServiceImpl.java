@@ -226,7 +226,7 @@ public class PatientServiceImpl implements PatientService {
         // 这里模拟实现
         System.out.println("提交挂号：" + registerSubmitDto.getPatientId() +
                 " 医生：" + registerSubmitDto.getDoctorId() +
-                " 日期：" + registerSubmitDto.getRegisterDate());
+                " 日期：" + registerSubmitDto.getVisitDate());
         return true;
     }
 
