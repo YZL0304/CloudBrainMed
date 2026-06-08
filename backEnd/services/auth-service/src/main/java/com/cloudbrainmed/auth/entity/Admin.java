@@ -29,4 +29,3 @@ public class Admin {
     // 0未删除 1已删除
     private Integer isDeleted;
 }
-

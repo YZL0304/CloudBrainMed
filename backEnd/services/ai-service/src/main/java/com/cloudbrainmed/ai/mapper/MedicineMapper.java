@@ -12,4 +12,3 @@ public interface MedicineMapper extends BaseMapper<Medicine> {
     @Select("SELECT * FROM medicine WHERE name LIKE CONCAT('%', #{keyword}, '%') LIMIT 1")
     Medicine findByKeyword(@Param("keyword") String keyword);
 }
-

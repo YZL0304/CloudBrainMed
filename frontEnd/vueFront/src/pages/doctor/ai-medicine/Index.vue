@@ -154,7 +154,7 @@ html, body, #app {
 }
 
 /* 页面容器：匹配系统#F6F9FC全局底色 */
-  .page-container {
+.page-container {
   display: flex;
   flex-direction: column;
   width: 100%; /* 使用 100% 避免 100vw + padding 导致水平溢出被隐藏 */
@@ -200,7 +200,7 @@ html, body, #app {
   color: rgba(255,255,255,0.85);
 }
 
-  .chat-main {
+.chat-main {
   display: flex;
   flex: 1;
   gap: 20px;
@@ -273,7 +273,7 @@ html, body, #app {
   color: #1A1F36;
 }
 
-  .input-bar {
+.input-bar {
   display: flex;
   gap: 12px;
   padding: 20px 30px;
@@ -281,11 +281,11 @@ html, body, #app {
   flex-shrink: 0;
   align-items: center;
 }
- .input-box {
+.input-box {
   flex: 1;
   min-width: 0; /* 允许在小屏时输入框缩小，避免按钮被挤出 */
 }
- .send-btn {
+.send-btn {
   min-width: 130px;
   background-color: #165DFF;
   flex-shrink: 0;
@@ -371,4 +371,3 @@ html, body, #app {
   font-size: 15px;
 }
 </style>
-

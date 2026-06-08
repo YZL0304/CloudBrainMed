@@ -22,4 +22,3 @@ public class Medicine {
     private BigDecimal price;
     private LocalDateTime createTime;
 }
-

@@ -181,4 +181,3 @@ http://localhost:5173/login
 | 500 column "avatar" does not exist | 数据库表缺少avatar字段 | 执行 `ALTER TABLE admin ADD COLUMN avatar VARCHAR(255);` |
 | 登录后无法跳转 | token未正确存储 | 检查sessionStorage是否存储成功 |
 | CORS跨域错误 | 代理配置未生效 | 重启Vite开发服务器 |
-

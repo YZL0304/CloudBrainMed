@@ -1,71 +1,71 @@
 <template>
-  <div class="doctor-home">
-    <div class="welcome-section">
-      <h1>欢迎，医生</h1>
-      <p>{{ currentDateTime }}</p>
+<div class="doctor-home">
+<div class="welcome-section">
+  <h1>欢迎，医生</h1>
+  <p>{{ currentDateTime }}</p>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background: #E3F2FD;">
+      <el-icon style="color: #165DFF; font-size: 24px;"><DocumentCopy /></el-icon>
     </div>
-
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon" style="background: #E3F2FD;">
-          <el-icon style="color: #165DFF; font-size: 24px;"><DocumentCopy /></el-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-label">今日诊疗</div>
-          <div class="stat-value">12</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon" style="background: #F3E5F5;">
-          <el-icon style="color: #9C27B0; font-size: 24px;"><Calendar /></el-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-label">待诊患者</div>
-          <div class="stat-value">5</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon" style="background: #E8F5E9;">
-          <el-icon style="color: #4CAF50; font-size: 24px;"><Check /></el-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-label">已完成</div>
-          <div class="stat-value">8</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon" style="background: #FFF3E0;">
-          <el-icon style="color: #FF9800; font-size: 24px;"><Warning /></el-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-label">AI 诊断</div>
-          <div class="stat-value">3</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="quick-actions">
-      <el-button type="primary" @click="$router.push('/doctor/consult')">
-        <el-icon><List /></el-icon>
-        接诊工作台
-      </el-button>
-      <el-button type="primary" @click="$router.push('/doctor/ai-medicine')">
-        <el-icon><Cpu /></el-icon>
-        AI 医学助手
-      </el-button>
-      <el-button @click="$router.push('/doctor/profile')">
-        <el-icon><UserFilled /></el-icon>
-        个人信息
-      </el-button>
-      <el-button @click="handleLogout">
-        <el-icon><SwitchButton /></el-icon>
-        退出登录
-      </el-button>
+    <div class="stat-content">
+      <div class="stat-label">今日诊疗</div>
+      <div class="stat-value">12</div>
     </div>
   </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background: #F3E5F5;">
+      <el-icon style="color: #9C27B0; font-size: 24px;"><Calendar /></el-icon>
+    </div>
+    <div class="stat-content">
+      <div class="stat-label">待诊患者</div>
+      <div class="stat-value">5</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background: #E8F5E9;">
+      <el-icon style="color: #4CAF50; font-size: 24px;"><Check /></el-icon>
+    </div>
+    <div class="stat-content">
+      <div class="stat-label">已完成</div>
+      <div class="stat-value">8</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background: #FFF3E0;">
+      <el-icon style="color: #FF9800; font-size: 24px;"><Warning /></el-icon>
+    </div>
+    <div class="stat-content">
+      <div class="stat-label">AI 诊断</div>
+      <div class="stat-value">3</div>
+    </div>
+  </div>
+</div>
+
+<div class="quick-actions">
+  <el-button type="primary" @click="$router.push('/doctor/consult')">
+    <el-icon><List /></el-icon>
+    接诊工作台
+  </el-button>
+  <el-button type="primary" @click="$router.push('/doctor/ai-medicine')">
+    <el-icon><Cpu /></el-icon>
+    AI 医学助手
+  </el-button>
+  <el-button @click="$router.push('/doctor/profile')">
+    <el-icon><UserFilled /></el-icon>
+    个人信息
+  </el-button>
+  <el-button @click="handleLogout">
+    <el-icon><SwitchButton /></el-icon>
+    退出登录
+  </el-button>
+</div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -171,4 +171,3 @@ const handleLogout = () => {
   border-radius: 8px;
 }
 </style>
-

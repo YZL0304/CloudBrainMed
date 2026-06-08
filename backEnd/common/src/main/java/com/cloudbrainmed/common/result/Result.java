@@ -20,6 +20,7 @@ public class Result<T> {
         return new Result<>(ResultCode.SUCCESS, msg, data);
     }
 
+
     public static <T> Result<T> success(T data) {
         return new Result<>(ResultCode.SUCCESS, "成功", data);
     }
@@ -40,6 +41,7 @@ public class Result<T> {
         return success("成功", null);
     }
 
+    // getters & setters
     public Integer getCode() {
         return code;
     }
