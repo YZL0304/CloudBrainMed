@@ -1,6 +1,7 @@
 package com.cloudbrainmed.common.utils;
 
 import org.springframework.stereotype.Component;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
@@ -20,4 +21,15 @@ public class DoctorJwtUtil {
                 .compact();
     }
 
+    public static Claims parseToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public static String getUserId(String token) {
+        return parseToken(token).get("userId", String.class);
+    }
 }

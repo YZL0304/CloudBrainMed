@@ -124,10 +124,10 @@ const handleLogin = async (): Promise<void> => {
 
     const result = res.data
     if (result.code === 200 && result.data && result.data.token) {
-      // ✅ result.data 就是 token 字符串
-      sessionStorage.setItem('token', result.data)
-      // ✅ roleType 从登录表单里取（后端没返回）
-      sessionStorage.setItem('roleType', String(loginForm.value.roleType))
+      // result.data 是 { token: "xxx", roleType: N }，取 token 字段
+      sessionStorage.setItem('token', result.data.token)
+      // roleType 优先用后端返回值，兜底取表单里的
+      sessionStorage.setItem('roleType', String(result.data.roleType ?? loginForm.value.roleType))
 
       ElMessage.success('登录成功')
       await router.push({ name: 'home' })

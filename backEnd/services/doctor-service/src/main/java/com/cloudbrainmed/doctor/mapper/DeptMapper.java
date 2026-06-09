@@ -1,9 +1,9 @@
 package com.cloudbrainmed.doctor.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.cloudbrainmed.doctor.entity.Doctor;
+import com.cloudbrainmed.doctor.entity.Dept;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface DoctorMapper extends BaseMapper<Doctor> {
+public interface DeptMapper extends BaseMapper<Dept> {
 }
