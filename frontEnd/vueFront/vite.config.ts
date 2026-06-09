@@ -17,7 +17,18 @@ export default defineConfig({
         target: 'http://localhost:8002',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/auth-service/, ''),
+      },
+      '/api/doctor': {
+        target: 'http://localhost:8003',
+        changeOrigin: true,
+      },
+      '/api/patient': {
+        target: 'http://localhost:8004',
+        changeOrigin: true,
+      },
+      '/api/admin': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
       },
       '/api/ai': {
         target: 'http://localhost:8001',
@@ -27,7 +38,7 @@ export default defineConfig({
             console.log('API代理错误:', err);
           });
           proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('代理到登录服务:', req.method, req.url);
+            console.log('代理到AI服务:', req.method, req.url);
           });
         }
       }
