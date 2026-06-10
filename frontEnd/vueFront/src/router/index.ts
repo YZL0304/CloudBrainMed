@@ -11,15 +11,9 @@ const router = createRouter({
     },
     {
       path: '/',
-      name: 'home',
+      name: 'DoctorHome',
       component: () => import('@/pages/HomeView.vue'),
       meta: { requiresAuth: true }
-    },
-    {
-      path: '/doctor/home',
-      name: 'DoctorHome',
-      component: () => import('@/pages/DoctorHome.vue'),
-      meta: { requiresAuth: true, role: 2 }
     },
     {
       path: '/doctor/profile',
@@ -63,6 +57,37 @@ const router = createRouter({
       component: () => import('@/pages/admin/ml/CTInference.vue'),
       meta: { requiresAuth: true, role: 3 }
     },
+    {
+      path: '/admin/scheduling',
+      name: 'scheduling',
+      component: () => import('@/pages/admin/scheduling/Scheduling.vue'),
+      meta: { requiresAuth: true, role: 3 }
+    },
+
+    {
+      path: '/admin/medicine',
+      name: 'AdminMedicine',
+      component: () => import('@/pages/admin/medicine/AdminMedicine.vue'),
+      meta: { requiresAuth: true, role: 3 }
+    },
+    {
+      path: '/admin/profile',
+      name: 'AdminProfile',
+      component: () => import('@/pages/admin/profile/AdminProfile.vue'),
+      meta: { requiresAuth: true, role: 3 }
+    },
+    {
+      path: '/admin/userManage',
+      name: 'AdminUserManage',
+      component: () => import('@/pages/admin/userManage/AdminUserManage.vue'),
+      meta: { requiresAuth: true, role: 3 }
+    },
+    {
+      path: '/admin/home',
+      name: 'AdminHome',
+      component: () => import('@/pages/admin/AdminHome.vue'),
+      meta: { requiresAuth: true, role: 3 }
+    },
   ],
 })
 
@@ -89,7 +114,7 @@ router.beforeEach((to, from, next) => {
     if (to.meta.role) {
       const userRole = parseInt(roleType || '0')
       if (userRole !== to.meta.role) {
-        next('/')
+        next('/login')
         return
       }
     }
