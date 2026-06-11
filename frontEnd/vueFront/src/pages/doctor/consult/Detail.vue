@@ -30,7 +30,52 @@
           <el-button @click="handleSaveDraft" :loading="saving" size="large">暂存草稿</el-button>
           <el-button type="success" @click="handleConfirm" :loading="confirming" size="large">确认病历</el-button>
           <el-button type="warning" @click="handleCreateExam" size="large">开具检查单</el-button>
+          <el-button type="primary" @click="handleAiAnalyze" :loading="aiLoading" size="large">
+            <el-icon><MagicStick /></el-icon> AI 分析
+          </el-button>
           <el-button type="danger" @click="handleComplete" :loading="completing" size="large" plain>完成接诊</el-button>
+        </div>
+
+        <!-- AI 分析结果面板 -->
+        <div class="ai-panel" v-if="aiResult">
+          <div class="ai-panel-head">
+            <span class="ai-panel-icon">🧠</span>
+            <span>AI 辅助诊断分析</span>
+            <el-button text size="small" @click="aiResult = null" style="margin-left:auto">收起</el-button>
+          </div>
+
+          <div class="ai-section" v-if="aiResult.diagnosis?.length">
+            <div class="ai-section-title">【疑似诊断】</div>
+            <div class="ai-diag-item" v-for="(d, i) in aiResult.diagnosis" :key="i">
+              <span class="ai-diag-name">{{ d.name }}</span>
+              <el-tag :type="d.probability === '高' ? 'danger' : d.probability === '中' ? 'warning' : 'info'" size="small">{{ d.probability }}概率</el-tag>
+              <span class="ai-diag-basis">{{ d.basis }}</span>
+            </div>
+          </div>
+
+          <div class="ai-section" v-if="aiResult.exams?.length">
+            <div class="ai-section-title">【建议检查】</div>
+            <div class="ai-exam-item" v-for="(e, i) in aiResult.exams" :key="i">
+              <span class="ai-exam-name">{{ e.name }}</span>
+              <el-tag :type="e.urgency === '紧急' ? 'danger' : 'info'" size="small">{{ e.urgency }}</el-tag>
+              <span class="ai-exam-purpose">— {{ e.purpose }}</span>
+            </div>
+          </div>
+
+          <div class="ai-section" v-if="aiResult.advice">
+            <div class="ai-section-title">【临床建议】</div>
+            <p class="ai-advice-text">{{ aiResult.advice }}</p>
+          </div>
+
+          <div class="ai-section ai-risk" v-if="aiResult.risk && aiResult.risk !== '暂无特殊风险'">
+            <div class="ai-section-title">⚠️ 风险提示</div>
+            <p class="ai-risk-text">{{ aiResult.risk }}</p>
+          </div>
+
+          <div class="ai-actions">
+            <el-button type="success" @click="handleAiConfirm">✓ 确认采纳</el-button>
+            <el-button @click="aiResult = null">✗ 驳回</el-button>
+          </div>
         </div>
       </div>
 
@@ -62,7 +107,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getConsultDetail, saveDraft, confirmRecord, createExamOrder, completeConsult } from '@/api/doctor/consult'
+import { MagicStick } from '@element-plus/icons-vue'
+import { getConsultDetail, saveDraft, confirmRecord, createExamOrder, completeConsult, aiAnalyze } from '@/api/doctor/consult'
 
 const route = useRoute()
 const registerId = route.params.registerId as string
@@ -71,6 +117,7 @@ const recordDesc = ref('')
 const saving = ref(false); const confirming = ref(false); const completing = ref(false)
 const examLoading = ref(false); const showExamDialog = ref(false)
 const checkItemList = ref(''); const urgencyLevel = ref('NORMAL')
+const aiLoading = ref(false); const aiResult = ref<any>(null)
 
 onMounted(async () => {
   try { const res = await getConsultDetail(registerId); detail.value = res.data; recordDesc.value = res.data.description || '' } catch {}
@@ -93,6 +140,25 @@ async function handleComplete() {
   try { await ElMessageBox.confirm('确定完成本次接诊？完成后不可修改。', '确认', { type: 'warning' }) } catch { return }
   completing.value = true
   try { await completeConsult(registerId); ElMessage.success('接诊已完成'); detail.value.consultStatus = 'COMPLETED' } catch {} finally { completing.value = false }
+}
+async function handleAiAnalyze() {
+  if (!recordDesc.value.trim()) { ElMessage.warning('请先填写病历内容'); return }
+  aiLoading.value = true; aiResult.value = null
+  try {
+    const res = await aiAnalyze({
+      registerId,
+      chiefComplaint: detail.value.chiefComplaint || '',
+      recordDesc: recordDesc.value,
+      patientAge: String(detail.value.patientAge || ''),
+      patientGender: detail.value.gender === 1 ? '男' : '女'
+    })
+    aiResult.value = res.data
+    ElMessage.success('AI 分析完成')
+  } catch {} finally { aiLoading.value = false }
+}
+function handleAiConfirm() {
+  ElMessage.success('AI 分析结果已采纳，可据此开具检查单')
+  showExamDialog.value = true
 }
 function statusLabel(s: string) { const m: Record<string, string> = { PENDING: '待接诊', IN_PROGRESS: '接诊中', RECORD_CONFIRMED: '已确认', COMPLETED: '已完成' }; return m[s] || s }
 </script>
@@ -121,4 +187,22 @@ function statusLabel(s: string) { const m: Record<string, string> = { PENDING: '
 
 .editor { margin-bottom: 16px; }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* AI 分析面板 */
+.ai-panel { margin-top: 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; border-radius: 12px; padding: 24px; }
+.ai-panel-head { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: #0369a1; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #bae6fd; }
+.ai-panel-icon { font-size: 22px; }
+.ai-section { margin-bottom: 16px; }
+.ai-section-title { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+.ai-diag-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
+.ai-diag-item:last-child { border-bottom: none; }
+.ai-diag-name { font-size: 14px; font-weight: 600; color: #1e293b; min-width: 100px; }
+.ai-diag-basis { font-size: 13px; color: #64748b; margin-left: 4px; }
+.ai-exam-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.ai-exam-name { font-size: 14px; font-weight: 600; color: #1e293b; }
+.ai-exam-purpose { font-size: 13px; color: #64748b; }
+.ai-advice-text { font-size: 14px; color: #334155; line-height: 1.7; }
+.ai-risk { background: #fef2f2; border-radius: 8px; padding: 12px 16px; }
+.ai-risk-text { font-size: 14px; color: #dc2626; font-weight: 600; }
+.ai-actions { display: flex; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #bae6fd; }
 </style>

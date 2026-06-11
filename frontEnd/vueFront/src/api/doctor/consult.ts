@@ -23,3 +23,13 @@ export function createExamOrder(data: { registerId: string; checkItemList: strin
 export function completeConsult(registerId: string) {
   return request.post('/api/doctor/consult/complete', { registerId })
 }
+
+export function aiAnalyze(data: {
+  registerId: string
+  chiefComplaint: string
+  recordDesc: string
+  patientAge: string
+  patientGender: string
+}) {
+  return request.post('/api/doctor/consult/ai-analyze', data)
+}
