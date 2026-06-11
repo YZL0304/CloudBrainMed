@@ -57,6 +57,16 @@ public class DoctorProfileController {
         return Result.ok();
     }
 
+    /** 查询医生信息完善状态（首次登录引导） */
+    @GetMapping("/setup-status")
+    public Result<?> setupStatus(@RequestHeader(value = "token", required = false) String token) {
+        String doctorId = extractDoctorId(token);
+        DoctorProfileVo vo = doctorService.getDoctorInfo(doctorId);
+        boolean needSetup = vo.getIntroduction() == null || vo.getIntroduction().isBlank()
+                || vo.getGoodAt() == null || vo.getGoodAt().isBlank();
+        return Result.ok(Map.of("needSetup", needSetup));
+    }
+
     /**
      * 从 header 或 JWT 中提取 doctorId。
      * 优先从 token header 直接读取（兼容旧版直传 doctorId）；
