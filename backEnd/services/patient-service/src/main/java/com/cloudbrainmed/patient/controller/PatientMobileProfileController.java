@@ -1,28 +1,47 @@
 package com.cloudbrainmed.patient.controller;
 
+import com.cloudbrainmed.api.feign.PaymentFeignClient;
 import com.cloudbrainmed.common.result.Result;
+import com.cloudbrainmed.common.utils.JwtUtil;
 import com.cloudbrainmed.patient.module5.service.PatientProfileService;
+import com.cloudbrainmed.patient.service.RegisterService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 患者移动端个人中心控制器
+ * 对应鸿蒙端页面：患者个人信息 + 挂号记录 + 缴费记录
+ */
 @RestController
 @RequestMapping("/api/patient/profile")
 public class PatientMobileProfileController {
 
-    private final com.cloudbrainmed.patient.module5.service.PatientProfileService service;
+    private final PatientProfileService profileService;
+    private final RegisterService registerService;
+    private final PaymentFeignClient paymentFeignClient;
+    private final JwtUtil jwtUtil;
 
-    public PatientMobileProfileController(com.cloudbrainmed.patient.module5.service.PatientProfileService service) {
-        this.service = service;
+    public PatientMobileProfileController(PatientProfileService profileService,
+                                           RegisterService registerService,
+                                           PaymentFeignClient paymentFeignClient,
+                                           JwtUtil jwtUtil) {
+        this.profileService = profileService;
+        this.registerService = registerService;
+        this.paymentFeignClient = paymentFeignClient;
+        this.jwtUtil = jwtUtil;
     }
+
+    // ==================== 4.3.1 个人信息 ====================
 
     /** 4.3.1.1 查询个人脱敏信息 */
     @GetMapping("/info")
     public Result<?> info(@RequestHeader(value = "token", required = false) String token) {
         String patientId = extractPatientId(token);
-        return Result.ok(service.getInfo(patientId));
+        return Result.ok(profileService.getInfo(patientId));
     }
 
     /** 4.3.1.2 更新基础信息 */
@@ -30,7 +49,7 @@ public class PatientMobileProfileController {
     public Result<?> update(@RequestHeader(value = "token", required = false) String token,
                             @RequestBody Map<String, String> body) {
         String patientId = extractPatientId(token);
-        service.updateInfo(patientId,
+        profileService.updateInfo(patientId,
                 body.get("name"), body.get("gender"),
                 body.get("address"), body.get("birthday"));
         return Result.ok();
@@ -41,7 +60,7 @@ public class PatientMobileProfileController {
     public Result<?> avatarUpload(@RequestHeader(value = "token", required = false) String token,
                                   @RequestParam("file") MultipartFile file) throws IOException {
         String patientId = extractPatientId(token);
-        String url = service.uploadAvatar(patientId, file.getBytes(), file.getOriginalFilename());
+        String url = profileService.uploadAvatar(patientId, file.getBytes(), file.getOriginalFilename());
         return Result.ok(Map.of("avatarUrl", url));
     }
 
@@ -50,7 +69,7 @@ public class PatientMobileProfileController {
     public Result<?> changePhone(@RequestHeader(value = "token", required = false) String token,
                                  @RequestBody Map<String, String> body) {
         String patientId = extractPatientId(token);
-        service.changePhone(patientId,
+        profileService.changePhone(patientId,
                 body.get("oldPhone"), body.get("newPhone"), body.get("smsCode"));
         return Result.ok();
     }
@@ -60,7 +79,7 @@ public class PatientMobileProfileController {
     public Result<?> changePassword(@RequestHeader(value = "token", required = false) String token,
                                     @RequestBody Map<String, String> body) {
         String patientId = extractPatientId(token);
-        service.changePassword(patientId,
+        profileService.changePassword(patientId,
                 body.get("oldPassword"), body.get("newPassword"));
         return Result.ok();
     }
@@ -70,12 +89,67 @@ public class PatientMobileProfileController {
     public Result<?> verifyIdCard(@RequestHeader(value = "token", required = false) String token,
                                   @RequestBody Map<String, String> body) {
         String patientId = extractPatientId(token);
-        service.verifyIdCard(patientId, body.get("password"));
+        profileService.verifyIdCard(patientId, body.get("password"));
         return Result.ok();
     }
 
+    // ==================== 4.3.2 挂号记录 ====================
+
+    /** 查询患者挂号记录列表 */
+    @GetMapping("/registers")
+    public Result<?> registers(@RequestHeader(value = "token", required = false) String token) {
+        String patientId = extractPatientId(token);
+        return Result.ok(registerService.getRegisterHistory(patientId));
+    }
+
+    // ==================== 4.3.3 缴费记录 ====================
+
+    /** 查询患者缴费记录（通过 Feign → payment-service） */
+    @GetMapping("/payments")
+    public Result<?> payments(@RequestHeader(value = "token", required = false) String token) {
+        String patientId = extractPatientId(token);
+        Map<String, Object> result = paymentFeignClient.getPaymentHistory(patientId);
+        return Result.ok(result);
+    }
+
+    // ==================== 4.3.4 聚合接口（鸿蒙端一次拉取全部数据） ====================
+
+    /**
+     * 患者个人中心完整数据（个人信息 + 挂号记录 + 缴费记录）
+     * 鸿蒙端首页调用此接口即可获取全部模块数据
+     */
+    @GetMapping("/full")
+    public Result<?> full(@RequestHeader(value = "token", required = false) String token) {
+        String patientId = extractPatientId(token);
+
+        Map<String, Object> data = new HashMap<>();
+        // 板块1: 患者个人信息（脱敏）
+        data.put("profile", profileService.getInfo(patientId));
+        // 板块2: 挂号记录
+        data.put("registers", registerService.getRegisterHistory(patientId));
+        // 板块3: 缴费记录
+        data.put("payments", paymentFeignClient.getPaymentHistory(patientId));
+
+        return Result.ok(data);
+    }
+
+    // ==================== 工具方法 ====================
+
+    /**
+     * 从 JWT token 中提取 patientId
+     */
     private String extractPatientId(String token) {
-        // TODO: 解析 JWT token 获取 patientId
-        return "P001";
+        if (token == null || token.isBlank()) {
+            throw new RuntimeException("未登录，请先登录");
+        }
+        try {
+            return jwtUtil.getPatientIdFromToken(token);
+        } catch (Exception e) {
+            // 兼容开发阶段直接传 patientId
+            if (token.startsWith("P") && token.length() < 30) {
+                return token;
+            }
+            throw new RuntimeException("Token 无效，请重新登录");
+        }
     }
 }
