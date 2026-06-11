@@ -1,48 +1,3 @@
-<script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { computed, ref } from 'vue'
-import { ElIcon } from 'element-plus'
-import {
-  UserFilled,
-  List,
-  DataAnalysis,
-  CollectionTag,
-  Cpu,
-  Camera,
-} from '@element-plus/icons-vue'
-
-const route = useRoute()
-const collapsed = ref(false)
-
-// 判断是否需要显示侧栏
-const showSidebar = computed(() => {
-  return route.path !== '/login'
-})
-
-const iconMap: Record<string, any> = {
-  UserFilled,
-  List,
-  DataAnalysis,
-  CollectionTag,
-  Cpu,
-  Camera,
-}
-
-const menuItems = [
-  { path: '/doctor/profile', title: '医生个人信息', icon: 'UserFilled', group: '医生端' },
-  { path: '/doctor/consult', title: '接诊工作台', icon: 'List', group: '医生端' },
-  { path: '/admin/ml/dashboard', title: 'AI 推理看板', icon: 'DataAnalysis', group: '管理员端' },
-  { path: '/admin/ml/samples', title: '样本标注', icon: 'CollectionTag', group: '管理员端' },
-  { path: '/admin/ml/models', title: '模型管理', icon: 'Cpu', group: '管理员端' },
-  { path: '/admin/ml/ct-inference', title: 'CT 伪影检测', icon: 'Camera', group: '管理员端' },
-]
-
-function showGroupLabel(item: typeof menuItems[number]) {
-  const idx = menuItems.indexOf(item)
-  return idx > 0 && menuItems[idx - 1]!.group !== item.group
-}
-</script>
-
 <template>
   <div class="app-shell" v-if="showSidebar">
     <aside class="sidebar" :class="{ collapsed }">
@@ -57,17 +12,15 @@ function showGroupLabel(item: typeof menuItems[number]) {
       </div>
 
       <nav class="nav">
-        <router-link to="/" class="nav-item home-link">
-          <el-icon :size="20"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></el-icon>
-          <span v-show="!collapsed">首页概览</span>
-        </router-link>
-
+        <!-- 不再硬编码，统一用 v-for 渲染 -->
         <template v-for="item in menuItems" :key="item.path">
           <div class="nav-group-label" v-show="!collapsed && showGroupLabel(item)">
             {{ item.group }}
           </div>
           <router-link :to="item.path" class="nav-item">
-            <el-icon :size="20"><component :is="iconMap[item.icon]" /></el-icon>
+            <el-icon :size="20">
+              <component :is="iconMap[item.icon]" />
+            </el-icon>
             <span v-show="!collapsed">{{ item.title }}</span>
           </router-link>
         </template>
@@ -83,11 +36,103 @@ function showGroupLabel(item: typeof menuItems[number]) {
       <RouterView />
     </main>
   </div>
-  <!-- 登录页面独立显示 -->
   <RouterView v-else />
 </template>
 
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { ElIcon } from 'element-plus'
+import {
+  UserFilled,
+  List,
+  DataAnalysis,
+  CollectionTag,
+  Cpu,
+  Camera,
+  HomeFilled,  // 新增：首页图标
+} from '@element-plus/icons-vue'
+
+const route = useRoute()
+const collapsed = ref(false)
+
+const showSidebar = computed(() => route.path !== '/login')
+
+// 图标映射（新增 HomeFilled）
+const iconMap: Record<string, any> = {
+  HomeFilled,    // 新增
+  UserFilled,
+  List,
+  DataAnalysis,
+  CollectionTag,
+  Cpu,
+  Camera,
+}
+
+// ==================== 菜单配置（包含首页概览）====================
+const doctorMenus = [
+  { path: '/', title: '首页概览', icon: 'HomeFilled', group: '医生端' },      // 新增
+  { path: '/doctor/profile', title: '医生个人信息', icon: 'UserFilled', group: '医生端' },
+  { path: '/doctor/consult', title: '接诊工作台', icon: 'List', group: '医生端' },
+  { path: '/doctor/ai-medicine', title: 'AI 药物推荐', icon: 'DataAnalysis', group: '医生端' },
+  { path: '/doctor/schedule', title: '值班查询', icon: 'List', group: '医生端' },
+]
+
+const adminMenus = [
+  { path: '/admin/home', title: '首页概览', icon: 'HomeFilled', group: '管理员端' },     // 新增
+  { path: '/admin/profile', title: '管理员个人信息', icon: 'UserFilled', group: '管理员端' },
+  { path: '/admin/userManage', title: '账号权限管理', icon: 'List', group: '管理员端' },
+  { path: '/admin/medicine', title: '药品管理', icon: 'UserFilled', group: '管理员端' },
+  { path: '/admin/scheduling', title: '值班管理', icon: 'DataAnalysis', group: '管理员端' },
+  { path: '/admin/ml/dashboard', title: 'AI 推理看板', icon: 'DataAnalysis', group: '管理员端' },
+  { path: '/admin/ml/samples', title: '样本标注', icon: 'CollectionTag', group: '管理员端' },
+  { path: '/admin/ml/models', title: '模型管理', icon: 'Cpu', group: '管理员端' },
+  { path: '/admin/ml/ct-inference', title: 'CT 伪影检测', icon: 'Camera', group: '管理员端' },
+]
+
+// ==================== 角色判断（从 sessionStorage 获取）====================
+const currentRole = ref<'doctor' | 'admin'>('doctor')
+
+// 从 sessionStorage 读取角色
+const getRoleFromSession = (): 'doctor' | 'admin' => {
+  const role = sessionStorage.getItem('userRole')
+  if (role === 'admin') return 'admin'
+  return 'doctor'
+}
+
+// 根据当前路由路径自动更新角色
+const updateRoleFromPath = () => {
+  if (route.path.startsWith('/admin')) {
+    currentRole.value = 'admin'
+  } else if (route.path.startsWith('/doctor')) {
+    currentRole.value = 'doctor'
+  } else {
+    // 首页等通用路径，保持已有角色或从 sessionStorage 读取
+    currentRole.value = getRoleFromSession()
+  }
+}
+
+// 监听路由变化，自动切换角色
+watch(() => route.path, () => {
+  updateRoleFromPath()
+}, { immediate: true })
+
+// 根据角色动态计算菜单项
+const menuItems = computed(() => {
+  return currentRole.value === 'doctor' ? doctorMenus : adminMenus
+})
+
+// 判断是否显示分组标签
+function showGroupLabel(item: { path: string; title: string; icon: string; group: string }) {
+  const items = menuItems.value
+  const idx = items.findIndex(i => i.path === item.path)
+  if (idx === -1) return false
+  return idx > 0 && items[idx - 1]!.group !== item.group
+}
+</script>
+
 <style>
+/* 样式保持你原来的不变 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
@@ -139,13 +184,11 @@ body { font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; backg
   color: #94a3b8; text-decoration: none;
   font-size: 14px; font-weight: 500;
   transition: all .15s ease; white-space: nowrap;
+  position: relative;
 }
 .nav-item:hover { background: rgba(255,255,255,.06); color: #e2e8f0; }
 .nav-item.router-link-active { background: rgba(37,99,235,.25); color: #bfdbfe; }
 .nav-item.router-link-active::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; background: var(--brand); border-radius: 0 3px 3px 0; }
-.nav-item { position: relative; }
-
-.home-link { margin-bottom: 4px; }
 
 .sidebar-footer {
   padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.06);

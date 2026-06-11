@@ -130,7 +130,9 @@ const handleLogin = async (): Promise<void> => {
       sessionStorage.setItem('roleType', String(result.data.roleType ?? loginForm.value.roleType))
 
       ElMessage.success('登录成功')
-      await router.push({ name: 'home' })
+      if(loginForm.value.roleType==2){await router.push({ name: 'DoctorHome' })}
+      else{await router.push({ name: 'AdminHome' })}
+
     } else {
       ElMessage.error(result.msg || '登录失败')
     }
