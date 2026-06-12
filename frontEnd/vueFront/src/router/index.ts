@@ -25,16 +25,19 @@ const router = createRouter({
       path: '/doctor/consult',
       name: 'doctorConsult',
       component: () => import('@/pages/doctor/consult/List.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/doctor/consult/:registerId',
       name: 'doctorConsultDetail',
       component: () => import('@/pages/doctor/consult/Detail.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/doctor/ai-medicine',
       name: 'aiMedicine',
       component: () => import('@/pages/doctor/ai-medicine/Index.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/doctor/schedule',
@@ -46,16 +49,19 @@ const router = createRouter({
       path: '/admin/ml/dashboard',
       name: 'mlDashboard',
       component: () => import('@/pages/admin/ml/Dashboard.vue'),
+      meta: { requiresAuth: true, role: 3 }
     },
     {
       path: '/admin/ml/samples',
       name: 'mlSamples',
       component: () => import('@/pages/admin/ml/Samples.vue'),
+      meta: { requiresAuth: true, role: 3 }
     },
     {
       path: '/admin/ml/models',
       name: 'mlModels',
       component: () => import('@/pages/admin/ml/Models.vue'),
+      meta: { requiresAuth: true, role: 3 }
     },
     {
       path: '/admin/ml/ct-inference',
