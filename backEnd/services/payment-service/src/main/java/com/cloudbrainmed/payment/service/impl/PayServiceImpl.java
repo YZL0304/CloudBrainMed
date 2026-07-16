@@ -175,35 +175,40 @@ public class PayServiceImpl implements PayService {
             return false;
         }
 
-        // 4. 查询业务日期，判断是否超过退款截止时间
-        //    - REGISTER: visit_date + 1天
-        //    - MEDICAL: create_time + 1天
-        //    - PRESCRIPTION: create_time + 1天
-        LocalDate businessDate = businessStatusService.getBusinessDate(
-                pay.getOrderType(), pay.getBusinessId());
+        // 4. 根据订单类型进行特殊校验（无时间限制）
+        if ("PRESCRIPTION".equals(pay.getOrderType())) {
+            // 药品费：库存未扣减（stock_deducted=FALSE）才能退款
+            Boolean stockDeducted = payMapper.isPrescriptionStockDeducted(pay.getBusinessId());
+            if (Boolean.TRUE.equals(stockDeducted)) {
+                log.info("canRefund: 处方库存已扣减，不可退款, payId={}, prescriptionId={}",
+                        payId, pay.getBusinessId());
+                return false;
+            }
+            log.info("canRefund: 处方库存未扣减，允许退款, payId={}", payId);
 
-        if (businessDate == null) {
-            // 查不到业务日期，保守处理：不允许退款
-            log.warn("canRefund: 查不到业务日期，不允许退款, payId={}, orderType={}, businessId={}",
-                    payId, pay.getOrderType(), pay.getBusinessId());
-            return false;
+        } else if ("MEDICAL".equals(pay.getOrderType())) {
+            // 检查费：订单状态不是 COMPLETED/CANCELLED 才能退款
+            String orderStatus = payMapper.getMedicalOrderStatus(pay.getBusinessId());
+            if ("COMPLETED".equals(orderStatus) || "CANCELLED".equals(orderStatus)) {
+                log.info("canRefund: 医技检查订单已完成/已取消，不可退款, payId={}, orderId={}, status={}",
+                        payId, pay.getBusinessId(), orderStatus);
+                return false;
+            }
+            log.info("canRefund: 医技检查订单状态允许退款, payId={}, orderId={}, status={}",
+                    payId, pay.getBusinessId(), orderStatus);
+
+        } else if ("REGISTER".equals(pay.getOrderType())) {
+            // 挂号费：consult_status 为 PENDING 才能退款
+            String consultStatus = payMapper.getRegistrationConsultStatus(pay.getBusinessId());
+            if (!"PENDING".equals(consultStatus)) {
+                log.info("canRefund: 挂号已接诊/完成，不可退款, payId={}, registerId={}, consultStatus={}",
+                        payId, pay.getBusinessId(), consultStatus);
+                return false;
+            }
+            log.info("canRefund: 挂号未接诊，允许退款, payId={}, registerId={}", payId);
         }
 
-        // 退款截止时间 = 业务日期 + 1天
-        // 例如：businessDate = 2026-07-13
-        // 退款截止时间 = 2026-07-15 00:00:00（即7月14日全天结束）
-        // 患者在 2026-07-14 23:59:59 之前都可以申请退款
-        LocalDate refundDeadlineDate = businessDate.plusDays(1);
-        LocalDate today = LocalDate.now();
-
-        if (today.isAfter(refundDeadlineDate)) {
-            log.info("canRefund: 已超过退款截止时间, payId={}, businessDate={}, refundDeadlineDate={}, today={}",
-                    payId, businessDate, refundDeadlineDate, today);
-            return false;
-        }
-
-        log.info("canRefund: 允许退款, payId={}, businessDate={}, refundDeadlineDate={}, today={}",
-                payId, businessDate, refundDeadlineDate, today);
+        log.info("canRefund: 允许退款, payId={}, orderType={}", payId, pay.getOrderType());
         return true;
     }
 
@@ -336,9 +341,28 @@ public class PayServiceImpl implements PayService {
                         pay.getOrderType(), pay.getBusinessId());
                 vo.setBusinessStatus(businessPayStatus);
 
-                // 统一调用 canRefund 方法判断退款资格（包含业务日期+1天的时间校验）
+                // 统一调用 canRefund 方法判断退款资格
                 boolean canRefund = canRefund(pay.getPayId());
                 vo.setCanRefund(canRefund);
+
+                // 设置业务状态，让前端能正确显示提示
+                if (!canRefund) {
+                    if ("PRESCRIPTION".equals(pay.getOrderType())) {
+                        vo.setBusinessStatus("DISPENSED"); // 库存已扣减，视为已发药
+                    } else if ("MEDICAL".equals(pay.getOrderType())) {
+                        String orderStatus = payMapper.getMedicalOrderStatus(pay.getBusinessId());
+                        if ("COMPLETED".equals(orderStatus)) {
+                            vo.setBusinessStatus("COMPLETED");
+                        } else if ("CANCELLED".equals(orderStatus)) {
+                            vo.setBusinessStatus("CANCELLED");
+                        }
+                    } else if ("REGISTER".equals(pay.getOrderType())) {
+                        String consultStatus = payMapper.getRegistrationConsultStatus(pay.getBusinessId());
+                        if (!"PENDING".equals(consultStatus)) {
+                            vo.setBusinessStatus("COMPLETED"); // 已接诊/完成
+                        }
+                    }
+                }
 
                 log.info("已支付订单: payId={}, businessPayStatus={}, canRefund={}",
                         pay.getPayId(), businessPayStatus, canRefund);

@@ -23,29 +23,6 @@ interface DetailParams {
   prescriptions?: PrescriptionItem[];
 }
 
-// ==================== 常量定义 ====================
-
-const PayStatusText: Record<string, string> = {
-  'WAITING': '待支付',
-  'PAID': '已支付 ✓',
-  'CANCELLED': '已取消 ✗',
-  'REFUNDED': '已退款 ↩'
-};
-
-const PayStatusColor: Record<string, string> = {
-  'WAITING': '#4A90D9',
-  'PAID': '#2ECC71',
-  'CANCELLED': '#95A5A6',
-  'REFUNDED': '#95A5A6'
-};
-
-const PayStatusBgColor: Record<string, string> = {
-  'WAITING': '#E8F0FE',
-  'PAID': '#E8F8F0',
-  'CANCELLED': '#F0F0F0',
-  'REFUNDED': '#F0F0F0'
-};
-
 // ==================== 页面组件 ====================
 
 @Entry
@@ -78,18 +55,6 @@ export struct PrescriptionDetail {
     router.back();
   }
 
-  private getStatusColor(): string {
-    return PayStatusColor[this.payStatus] || '#95A5A6';
-  }
-
-  private getStatusBgColor(): string {
-    return PayStatusBgColor[this.payStatus] || '#F0F0F0';
-  }
-
-  private getStatusText(): string {
-    return PayStatusText[this.payStatus] || this.payStatus || '未知';
-  }
-
   private formatAmount(amount: number): string {
     return (amount || 0).toFixed(2);
   }
@@ -100,9 +65,9 @@ export struct PrescriptionDetail {
     return parts[0] || dateStr;
   }
 
-  private goToPay(): void {
+  private goToPayHistory(): void {
     router.pushUrl({
-      url: 'pages/pay/PayPage',
+      url: 'pages/pay/PayHistory',
       params: {
         businessId: this.registerId,
         orderType: 'PRESCRIPTION',
@@ -112,33 +77,15 @@ export struct PrescriptionDetail {
         returnUrl: 'pages/history/PrescriptionDetail'
       }
     }).catch((err: Error) => {
-      console.error('跳转支付失败:', JSON.stringify(err));
+      console.error('跳转缴费记录失败:', JSON.stringify(err));
       promptAction.showToast({
-        message: '跳转支付失败',
+        message: '跳转缴费记录失败',
         duration: 1500
       });
     });
   }
 
   // ==================== UI构建 ====================
-
-  @Builder
-  private StatusTag() {
-    Row() {
-      Circle()
-        .width(5)
-        .height(5)
-        .fill(this.getStatusColor())
-        .margin({ right: 4 })
-      Text(this.getStatusText())
-        .fontSize(11)
-        .fontColor(this.getStatusColor())
-        .fontWeight(FontWeight.Medium)
-    }
-    .padding({ left: 10, right: 10, top: 3, bottom: 3 })
-    .backgroundColor(this.getStatusBgColor())
-    .borderRadius(12)
-  }
 
   @Builder
   private InfoRow(label: string, value: string) {
@@ -227,7 +174,7 @@ export struct PrescriptionDetail {
 
   build() {
     Column() {
-      // 顶部导航栏 - 与之前界面统一
+      // 顶部导航栏
       Row() {
         Stack() {
           Row()
@@ -270,10 +217,6 @@ export struct PrescriptionDetail {
                 .fontSize(15)
                 .fontWeight(FontWeight.Medium)
                 .fontColor('#1A1A2E')
-
-              Blank()
-
-              this.StatusTag()
             }
             .width('100%')
             .margin({ bottom: 12 })
@@ -367,23 +310,21 @@ export struct PrescriptionDetail {
           })
         }
 
-        // 去支付按钮
-        if (this.payStatus === 'WAITING') {
-          ListItem() {
-            Button('去支付 ¥' + this.formatAmount(this.totalAmount))
-              .width('100%')
-              .height(48)
-              .fontSize(16)
-              .fontWeight(FontWeight.Medium)
-              .fontColor('#FFFFFF')
-              .backgroundColor('#4A90D9')
-              .borderRadius(24)
-              .onClick(() => {
-                this.goToPay();
-              })
-          }
-          .margin({ bottom: 4 })
+        // 查看缴费记录按钮（始终显示）
+        ListItem() {
+          Button('查看缴费记录')
+            .width('100%')
+            .height(48)
+            .fontSize(16)
+            .fontWeight(FontWeight.Medium)
+            .fontColor('#FFFFFF')
+            .backgroundColor('#4A90D9')
+            .borderRadius(24)
+            .onClick(() => {
+              this.goToPayHistory();
+            })
         }
+        .margin({ bottom: 4 })
       }
       .width('100%')
       .padding({ left: 16, right: 16, top: 16 })

@@ -147,9 +147,7 @@ public class PatientMobileProfileController {
         String patientId = extractPatientId(token);
         // ✅ 改为调用增强版接口
         Result<List<PayResultVo>> result = paymentFeignClient.getPayHistoryEnhanced(patientId);
-//        log.info("缴费记录返回: code={}, dataSize={}",
-//                result.getCode(),
-//                result.getData() != null ? result.getData().size() : 0);
+//        l
         return result;
     }
 

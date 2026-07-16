@@ -172,4 +172,16 @@ public interface PayMapper {
      */
     @Select("SELECT MAX(pay_id) FROM pay")
     String selectMaxPayId();
+
+    /**
+     * 查询医技检查订单的状态（判断是否已完成）
+     */
+    @Select("SELECT status FROM medical_order WHERE order_id = #{orderId}")
+    String getMedicalOrderStatus(@Param("orderId") String orderId);
+
+    /**
+     * 查询挂号的接诊状态
+     */
+    @Select("SELECT consult_status FROM registration WHERE register_id = #{registerId}")
+    String getRegistrationConsultStatus(@Param("registerId") String registerId);
 }

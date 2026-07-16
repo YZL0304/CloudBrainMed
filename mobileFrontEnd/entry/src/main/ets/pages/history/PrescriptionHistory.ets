@@ -41,29 +41,6 @@ interface ApiResponse<T> {
   data: T;
 }
 
-// ==================== 常量 ====================
-
-const STATUS_COLOR: Record<string, string> = {
-  'WAITING': '#FAAD14',
-  'PAID': '#52C41A',
-  'CANCELLED': '#FF4D4F',
-  'REFUNDED': '#999999'
-};
-
-const STATUS_BG_COLOR: Record<string, string> = {
-  'WAITING': '#FFF7E6',
-  'PAID': '#F6FFED',
-  'CANCELLED': '#FFF1F0',
-  'REFUNDED': '#F5F5F5'
-};
-
-const STATUS_TEXT: Record<string, string> = {
-  'WAITING': '待支付',
-  'PAID': '已支付',
-  'CANCELLED': '已取消',
-  'REFUNDED': '已退款'
-};
-
 // ==================== 页面组件 ====================
 
 @Entry
@@ -141,18 +118,6 @@ export struct PrescriptionHistory {
     });
   }
 
-  private getStatusColor(status: string): string {
-    return STATUS_COLOR[status] || '#999999';
-  }
-
-  private getStatusBgColor(status: string): string {
-    return STATUS_BG_COLOR[status] || '#F5F5F5';
-  }
-
-  private getStatusText(status: string): string {
-    return STATUS_TEXT[status] || status;
-  }
-
   private formatAmount(amount: number): string {
     return (amount || 0).toFixed(2);
   }
@@ -168,24 +133,6 @@ export struct PrescriptionHistory {
     if (!dateStr) return '';
     const parts = dateStr.split('T');
     return parts[0] || dateStr;
-  }
-
-  @Builder
-  private StatusTag(status: string) {
-    Row() {
-      Circle()
-        .width(6)
-        .height(6)
-        .fill(this.getStatusColor(status))
-        .margin({ right: 4 })
-      Text(this.getStatusText(status))
-        .fontSize(12)
-        .fontColor(this.getStatusColor(status))
-        .fontWeight(FontWeight.Medium)
-    }
-    .padding({ left: 10, right: 10, top: 4, bottom: 4 })
-    .backgroundColor(this.getStatusBgColor(status))
-    .borderRadius(12)
   }
 
   @Builder
@@ -206,7 +153,10 @@ export struct PrescriptionHistory {
 
         Blank()
 
-        this.StatusTag(group.payStatus)
+        // 右侧箭头图标
+        Text('›')
+          .fontSize(22)
+          .fontColor('#CCCCCC')
       }
       .width('100%')
 
@@ -238,11 +188,6 @@ export struct PrescriptionHistory {
           .fontSize(18)
           .fontColor('#EF4444')
           .fontWeight(FontWeight.Bold)
-
-        Text('›')
-          .fontSize(18)
-          .fontColor('#CCCCCC')
-          .margin({ left: 4 })
       }
       .width('100%')
       .margin({ top: 8 })
@@ -331,7 +276,7 @@ export struct PrescriptionHistory {
 
   build() {
     Column() {
-      // 顶部导航栏 - 使用统一风格
+      // 顶部导航栏
       Row() {
         Stack() {
           Row()
